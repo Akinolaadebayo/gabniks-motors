@@ -1,8 +1,12 @@
+import { useState } from "react";
 import "./App.css";
 import logo from "./assets/Gabnik_logo.png";
 import hero from "./assets/hero.jpg";
 
 function App() {
+  const [selectedService, setSelectedService] = useState("");
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
   const services = [
     {
       icon: "🔑",
@@ -68,6 +72,16 @@ function App() {
         "Yes. Services include key fob replacement, smart key programming, transponder keys, and push-start system support.",
     },
   ];
+
+  const openBookingForm = (serviceTitle) => {
+    setSelectedService(serviceTitle);
+    setIsBookingOpen(true);
+  };
+
+  const closeBookingForm = () => {
+    setSelectedService("");
+    setIsBookingOpen(false);
+  };
 
   return (
     <div className="app" id="top">
@@ -172,11 +186,18 @@ function App() {
 
           <div className="services-grid">
             {services.map((service, index) => (
-              <div className="service-card" key={index}>
+              <button
+                type="button"
+                className="service-card"
+                key={index}
+                onClick={() => openBookingForm(service.title)}
+              >
                 <div className="service-icon">{service.icon}</div>
+
                 <h3>{service.title}</h3>
+
                 <p>{service.text}</p>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -302,6 +323,147 @@ function App() {
       <a href="#top" className="back-to-top">
         ↑
       </a>
+
+      {/* =========================================================
+         BOOKING FORM MODAL
+      ========================================================= */}
+
+      {isBookingOpen && (
+        <div className="booking-modal-overlay">
+          <div className="booking-modal">
+            <button
+              type="button"
+              className="booking-close-button"
+              onClick={closeBookingForm}
+            >
+              ×
+            </button>
+
+            <p className="booking-label">Book Appointment</p>
+
+            <h2>Request Service</h2>
+
+            <p className="booking-selected-service">
+              Selected Service: <strong>{selectedService}</strong>
+            </p>
+
+            <form
+              className="booking-form"
+              action="https://formspree.io/f/meenlrgy"
+              method="POST"
+            >
+              <input
+                type="hidden"
+                name="selectedService"
+                value={selectedService}
+              />
+
+              <input
+                type="hidden"
+                name="_subject"
+                value={`New Gabniks Service Request - ${selectedService}`}
+              />
+
+              <div className="form-row">
+                <label>
+                  Full Name
+                  <input
+                    type="text"
+                    name="fullName"
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Phone Number
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Enter your phone number"
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="form-row">
+                <label>
+                  Email Address
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter your email address"
+                  />
+                </label>
+
+                <label>
+                  Car Make
+                  <input
+                    type="text"
+                    name="carMake"
+                    placeholder="Example: Toyota"
+                  />
+                </label>
+              </div>
+
+              <div className="form-row">
+                <label>
+                  Car Model
+                  <input
+                    type="text"
+                    name="carModel"
+                    placeholder="Example: Camry"
+                  />
+                </label>
+
+                <label>
+                  Car Year
+                  <input
+                    type="text"
+                    name="carYear"
+                    placeholder="Example: 2018"
+                  />
+                </label>
+              </div>
+
+              <label>
+                Vehicle Location
+                <input
+                  type="text"
+                  name="vehicleLocation"
+                  placeholder="Enter vehicle location or city"
+                />
+              </label>
+
+              <div className="form-row">
+                <label>
+                  Preferred Date
+                  <input type="date" name="appointmentDate" />
+                </label>
+
+                <label>
+                  Preferred Time
+                  <input type="time" name="appointmentTime" />
+                </label>
+              </div>
+
+              <label>
+                Issue Description
+                <textarea
+                  name="issueDescription"
+                  placeholder="Briefly describe what you need help with"
+                  rows="5"
+                  required
+                ></textarea>
+              </label>
+
+              <button type="submit" className="booking-submit-button">
+                Send Booking Request
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
