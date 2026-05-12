@@ -1,42 +1,79 @@
+/* =========================================================
+   GOOGLE FONT IMPORT
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap");
+
+/* =========================================================
+   ROOT AND PAGE RESET
+========================================================= */
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
-  width: 100%;
-  overflow-x: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f5f5f5;
-  color: #111;
+/* =========================================================
+   HTML
+========================================================= */
+
+html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
-button,
-input,
-textarea {
-  font-family: inherit;
+/* =========================================================
+   BODY
+========================================================= */
+
+body {
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+  background: #111218;
+  color: #111111;
+  overflow-x: hidden;
 }
+
+/* =========================================================
+   ROOT CONTAINER FIX
+========================================================= */
+
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: initial;
+}
+
+/* =========================================================
+   APP WRAPPER
+========================================================= */
 
 .app {
   width: 100%;
+  min-width: 100%;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #111218;
+  overflow-x: hidden;
 }
 
-.section-container,
-.header-container {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  padding-left: clamp(18px, 4vw, 60px);
-  padding-right: clamp(18px, 4vw, 60px);
-}
-
-/* HEADER */
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header {
   width: 100%;
@@ -44,474 +81,941 @@ textarea {
   position: sticky;
   top: 0;
   z-index: 999;
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
 }
+
+/* =========================================================
+   HEADER CONTAINER
+========================================================= */
 
 .header-container {
-  min-height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  color: #d59b05;
-  font-size: clamp(2rem, 3vw, 3.5rem);
-  font-weight: 900;
-  letter-spacing: -1px;
-}
-
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.icon-button {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  text-decoration: none;
-  color: white;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.25s ease;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
-}
-
-.icon-button:hover {
-  transform: translateY(-3px) scale(1.05);
-}
-
-.call-btn {
-  background: #d59b05;
-}
-
-.whatsapp-btn {
-  background: #25d366;
-}
-
-.facebook-btn {
-  background: #1877f2;
-}
-
-/* HERO */
-
-.hero-section {
   width: 100%;
-  padding-top: 70px;
-  padding-bottom: 60px;
-  background: linear-gradient(to bottom, #f7f7f7, #ffffff);
-}
+  max-width: none;
+  margin: 0;
 
-.hero-badge {
-  width: fit-content;
-  margin: 0 auto 28px;
-  background: #f3e7c6;
-  color: #d59b05;
-  padding: 12px 22px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 800;
-  text-align: center;
-}
+  min-height: 96px;
+  padding: 0 clamp(24px, 5vw, 70px);
 
-.hero-title {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-  font-size: clamp(3rem, 8vw, 7rem);
-  line-height: 0.95;
-  font-weight: 950;
-  letter-spacing: -3px;
-  color: #111;
-}
-
-.hero-description {
-  width: 100%;
-  max-width: 1100px;
-  margin: 34px auto 0;
-  text-align: center;
-  color: #555;
-  line-height: 1.8;
-  font-size: clamp(1rem, 1.4vw, 1.25rem);
-}
-
-/* FEATURE CARDS */
-
-.hero-features {
-  width: 100%;
-  margin-top: 55px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.feature-card {
-  background: white;
-  border-radius: 24px;
-  padding: 34px 24px;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.35s ease;
-  border: 1px solid transparent;
-}
-
-.feature-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 120%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(213, 155, 5, 0.18),
-    transparent
-  );
-  transition: all 0.6s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.14);
-  border: 1px solid rgba(213, 155, 5, 0.25);
-}
-
-.feature-card:hover::before {
-  left: 120%;
-}
-
-.feature-card h3 {
-  font-size: 1.6rem;
-  margin-bottom: 12px;
-  font-weight: 900;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.feature-card:hover h3 {
-  color: #d59b05;
-  transform: scale(1.03);
-}
-
-.feature-card p {
-  color: #666;
-  line-height: 1.7;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.feature-card:hover p {
-  color: #444;
-}
-
-/* IMAGE SECTION */
-
-.image-section {
-  width: 100%;
-  padding-bottom: 70px;
-  background: #ffffff;
-}
-
-.hero-image-card {
-  width: 100%;
-  height: auto;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
-}
-
-.hero-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: cover;
-}
-
-/* SERVICES */
-
-.services-section {
-  width: 100%;
-  padding-top: 70px;
-  padding-bottom: 90px;
-  background: #f5f5f5;
-}
-
-.section-title {
-  text-align: center;
-  color: #d59b05;
-  font-size: clamp(3rem, 7vw, 6rem);
-  font-weight: 950;
-  letter-spacing: -2px;
-  margin-bottom: 50px;
-}
-
-.services-grid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 300px 1fr auto;
+  align-items: center;
   gap: 28px;
 }
 
+/* =========================================================
+   LOGO SECTION
+========================================================= */
+
+.logo {
+  height: 82px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  overflow: hidden;
+  text-decoration: none;
+}
+
+/* =========================================================
+   LOGO IMAGE
+========================================================= */
+
+.logo-image {
+  width: 100%;
+  max-width: 300px;
+  height: 74px;
+
+  object-fit: contain;
+  object-position: left center;
+
+  display: block;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: clamp(16px, 2vw, 34px);
+}
+
+/* =========================================================
+   NAVIGATION LINKS
+========================================================= */
+
+.nav-links a {
+  color: #111111;
+  text-decoration: none;
+
+  font-size: 15px;
+  font-weight: 900;
+
+  transition: 0.3s ease;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   NAVIGATION LINK HOVER
+========================================================= */
+
+.nav-links a:hover {
+  color: #d99a00;
+}
+
+/* =========================================================
+   HEADER ICONS
+========================================================= */
+
+.header-icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 13px;
+}
+
+/* =========================================================
+   ICON CIRCLE
+========================================================= */
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  text-decoration: none;
+
+  font-size: 21px;
+  font-weight: 900;
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  transition: 0.3s ease;
+}
+
+/* =========================================================
+   ICON HOVER
+========================================================= */
+
+.icon-circle:hover {
+  transform: translateY(-4px);
+}
+
+/* =========================================================
+   ICON COLORS
+========================================================= */
+
+.phone-icon {
+  background: #d99a00;
+}
+
+.message-icon {
+  background: #25d366;
+}
+
+.facebook-icon {
+  background: #1877f2;
+}
+
+/* =========================================================
+   HERO SECTION
+========================================================= */
+
+.hero-section {
+  width: 100%;
+  min-height: calc(100vh - 96px);
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   HERO BACKGROUND
+========================================================= */
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* =========================================================
+   HERO BACKGROUND IMAGE
+========================================================= */
+
+.hero-background img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  display: block;
+}
+
+/* =========================================================
+   HERO OVERLAY
+========================================================= */
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 10, 0.9),
+      rgba(8, 8, 10, 0.7),
+      rgba(8, 8, 10, 0.45)
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.18),
+      rgba(0, 0, 0, 0.72)
+    );
+}
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.hero-content {
+  width: 100%;
+  max-width: none;
+
+  position: relative;
+  z-index: 2;
+
+  padding: clamp(55px, 8vw, 95px) clamp(24px, 7vw, 100px);
+
+  color: #ffffff;
+  text-align: center;
+}
+
+/* =========================================================
+   HERO LABEL
+========================================================= */
+
+.hero-label {
+  color: #f6c13a;
+
+  font-size: clamp(13px, 1.4vw, 17px);
+  font-weight: 900;
+  letter-spacing: 0.6px;
+
+  margin-bottom: 16px;
+}
+
+/* =========================================================
+   HERO TITLE
+========================================================= */
+
+.hero-content h1 {
+  max-width: 820px;
+
+  margin: 0 auto 24px;
+
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(44px, 7vw, 92px);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+/* =========================================================
+   HERO TEXT
+========================================================= */
+
+.hero-text {
+  max-width: 780px;
+
+  margin: 0 auto 34px;
+
+  color: #f1f1f1;
+
+  font-size: clamp(16px, 1.6vw, 20px);
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+/* =========================================================
+   HERO BUTTONS
+========================================================= */
+
+.hero-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   BUTTON BASE
+========================================================= */
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 165px;
+
+  padding: 16px 26px;
+
+  border-radius: 999px;
+
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 900;
+
+  transition: 0.3s ease;
+}
+
+/* =========================================================
+   PRIMARY BUTTON
+========================================================= */
+
+.primary-button {
+  background: #d99a00;
+  color: #111111;
+
+  box-shadow: 0 14px 34px rgba(217, 154, 0, 0.35);
+}
+
+/* =========================================================
+   SECONDARY BUTTON
+========================================================= */
+
+.secondary-button {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* =========================================================
+   BUTTON HOVER
+========================================================= */
+
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-4px);
+}
+
+/* =========================================================
+   GENERAL SECTION
+========================================================= */
+
+.section {
+  width: 100%;
+
+  padding: 95px 24px;
+
+  background: #f5f5f5;
+}
+
+/* =========================================================
+   SECTION CONTAINER
+========================================================= */
+
+.section-container {
+  width: 100%;
+  max-width: 1240px;
+
+  margin: 0 auto;
+}
+
+/* =========================================================
+   SECTION LABEL
+========================================================= */
+
+.section-label {
+  text-align: center;
+
+  color: #d99a00;
+
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+
+  margin-bottom: 12px;
+}
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.section-title {
+  text-align: center;
+
+  color: #d99a00;
+
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(44px, 6vw, 82px);
+  line-height: 1;
+  font-weight: 700;
+
+  margin-bottom: 20px;
+}
+
+/* =========================================================
+   SECTION DESCRIPTION
+========================================================= */
+
+.section-description {
+  max-width: 850px;
+
+  margin: 0 auto 44px;
+
+  text-align: center;
+
+  color: #555555;
+
+  font-size: 18px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+/* =========================================================
+   SERVICES SECTION
+========================================================= */
+
+.services-section {
+  background: #111218;
+  color: #ffffff;
+}
+
+/* =========================================================
+   SERVICES SECTION DESCRIPTION
+========================================================= */
+
+.services-section .section-description {
+  color: #bfc1cb;
+}
+
+/* =========================================================
+   SERVICES GRID
+========================================================= */
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 26px;
+}
+
+/* =========================================================
+   SERVICE CARD
+========================================================= */
+
 .service-card {
-  background: white;
-  border-radius: 28px;
-  min-height: 240px;
-  padding: 28px 20px;
-  cursor: pointer;
-  border: none;
-  transition: 0.25s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  min-height: 255px;
+
+  background: #ffffff;
+  color: #111111;
+
+  border-radius: 24px;
+  padding: 36px 24px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  text-align: center;
+  cursor: pointer;
+
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  transition: 0.3s ease;
 }
+
+/* =========================================================
+   SERVICE CARD HOVER
+========================================================= */
 
 .service-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
 }
 
+/* =========================================================
+   SERVICE ICON
+========================================================= */
+
 .service-icon {
-  width: 70px;
-  height: 70px;
+  width: 72px;
+  height: 72px;
+
   border-radius: 50%;
-  background: #fff3d7;
+  background: #fff0c8;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  margin-bottom: 20px;
+
+  font-size: 31px;
+
+  margin-bottom: 22px;
 }
 
-.service-title {
+/* =========================================================
+   SERVICE TITLE
+========================================================= */
+
+.service-card h3 {
+  color: #111111;
+
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 700;
+
+  margin-bottom: 12px;
+}
+
+/* =========================================================
+   SERVICE TEXT
+========================================================= */
+
+.service-card p {
+  color: #555555;
+
+  font-size: 15.5px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+/* =========================================================
+   ABOUT SECTION
+========================================================= */
+
+.about-section {
+  width: 100%;
+
+  background: #ffffff;
+
+  padding: 105px 24px;
+}
+
+/* =========================================================
+   ABOUT CONTAINER
+========================================================= */
+
+.about-container {
+  width: 100%;
+  max-width: 1120px;
+
+  margin: 0 auto;
+
   text-align: center;
-  font-size: 2rem;
+}
+
+/* =========================================================
+   ABOUT TITLE
+========================================================= */
+
+.about-title {
+  color: #d99a00;
+
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(44px, 7vw, 88px);
   line-height: 1.05;
+  font-weight: 700;
+
+  margin-bottom: 30px;
+}
+
+/* =========================================================
+   ABOUT TEXT
+========================================================= */
+
+.about-text {
+  max-width: 960px;
+
+  margin: 0 auto;
+
+  color: #4b4b4b;
+
+  font-size: 19px;
+  line-height: 1.85;
+  font-weight: 500;
+}
+
+/* =========================================================
+   ABOUT FEATURES
+========================================================= */
+
+.about-features {
+  margin-top: 40px;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 18px;
+}
+
+/* =========================================================
+   ABOUT FEATURE CARD
+========================================================= */
+
+.about-features div {
+  background: #f6f6f6;
+
+  border-radius: 18px;
+  padding: 22px 18px;
+
+  color: #1f1f1f;
+
+  font-size: 15px;
   font-weight: 900;
-  color: #111;
+  line-height: 1.4;
+
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.06);
 }
 
-.service-subtitle {
-  margin-top: 14px;
-  color: #666;
-  font-size: 1rem;
-  text-align: center;
-}
+/* =========================================================
+   FAQ SECTION
+========================================================= */
 
-/* MAP */
-
-.map-section {
+.faq-section {
   width: 100%;
-  background: white;
-  padding-top: 70px;
-  padding-bottom: 90px;
+
+  background: #f4f4f4;
+
+  padding: 95px 24px;
 }
 
-.map-text {
-  max-width: 1100px;
-  margin: 0 auto 34px;
-  text-align: center;
-  color: #555;
-  line-height: 1.8;
-  font-size: 1.1rem;
-}
+/* =========================================================
+   FAQ GRID
+========================================================= */
 
-.map-frame {
+.faq-grid {
   width: 100%;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.14);
+  max-width: 920px;
+
+  margin: 0 auto;
+
+  display: grid;
+  gap: 20px;
 }
 
-.map-frame iframe {
-  width: 100%;
-  height: 550px;
-  border: none;
+/* =========================================================
+   FAQ CARD
+========================================================= */
+
+.faq-card {
+  background: #ffffff;
+
+  border-radius: 22px;
+  padding: 28px 32px;
+
+  text-align: left;
+
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
 }
 
-/* MODAL */
+/* =========================================================
+   FAQ QUESTION
+========================================================= */
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  z-index: 5000;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow-y: auto;
-  padding: 24px;
-}
+.faq-card h3 {
+  color: #111111;
 
-.modal-card {
-  width: 100%;
-  max-width: 760px;
-  background: white;
-  border-radius: 30px;
-  padding: 38px;
-  margin-top: 30px;
-  position: relative;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
-}
-
-.modal-close {
-  position: absolute;
-  top: 16px;
-  right: 18px;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  background: #f0f0f0;
-  font-size: 1.6rem;
-}
-
-.booking-title {
-  text-align: center;
-  color: #d59b05;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: 20px;
   font-weight: 900;
+
   margin-bottom: 10px;
 }
 
-.booking-description {
-  text-align: center;
-  color: #666;
-  margin-bottom: 30px;
-  line-height: 1.7;
-}
+/* =========================================================
+   FAQ ANSWER
+========================================================= */
 
-.booking-form {
-  display: grid;
-  gap: 16px;
-}
+.faq-card p {
+  color: #4d4d4d;
 
-.booking-form input,
-.booking-form textarea {
-  width: 100%;
-  border: 1px solid #d9d9d9;
-  border-radius: 16px;
-  padding: 18px;
-  background: #ffffff;
-  color: #111111;
   font-size: 16px;
-  outline: none;
+  line-height: 1.65;
+  font-weight: 500;
 }
 
-.booking-form input::placeholder,
-.booking-form textarea::placeholder {
-  color: #777;
+/* =========================================================
+   SERVICE AREA SECTION
+========================================================= */
+
+.service-area-section {
+  width: 100%;
+
+  background: #111218;
+  color: #ffffff;
+
+  padding: 95px 24px 40px;
 }
 
-.booking-form input:focus,
-.booking-form textarea:focus {
-  border-color: #d59b05;
-  box-shadow: 0 0 0 4px rgba(213, 155, 5, 0.15);
+/* =========================================================
+   SERVICE AREA DESCRIPTION
+========================================================= */
+
+.service-area-section .section-description {
+  color: #c8c9d0;
 }
 
-.booking-form input:-webkit-autofill,
-.booking-form input:-webkit-autofill:hover,
-.booking-form input:-webkit-autofill:focus,
-.booking-form textarea:-webkit-autofill {
-  -webkit-text-fill-color: #111111 !important;
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  caret-color: #111111;
-}
+/* =========================================================
+   SERVICE AREA ACTIONS
+========================================================= */
 
-.booking-form textarea {
-  min-height: 140px;
-  resize: vertical;
-}
-
-.submit-btn {
-  border: none;
-  background: #d59b05;
-  color: white;
-  border-radius: 16px;
-  padding: 18px;
-  font-size: 1rem;
-  font-weight: 900;
-  cursor: pointer;
-  transition: 0.25s ease;
-}
-
-.submit-btn:hover {
-  background: #bb8703;
-}
-
-/* FLOATING WHATSAPP */
-
-.floating-whatsapp {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 64px;
-  height: 64px;
-  background: #25d366;
-  color: white;
-  border-radius: 50%;
-  text-decoration: none;
+.service-area-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
-  z-index: 3000;
+
+  gap: 16px;
+  flex-wrap: wrap;
+
+  margin-bottom: 34px;
 }
 
-/* FOOTER */
+/* =========================================================
+   SERVICE AREA BUTTON
+========================================================= */
+
+.service-area-button {
+  background: #d99a00;
+  color: #111111;
+
+  text-decoration: none;
+
+  border-radius: 999px;
+  padding: 15px 24px;
+
+  font-size: 16px;
+  font-weight: 900;
+
+  box-shadow: 0 14px 32px rgba(217, 154, 0, 0.28);
+  transition: 0.3s ease;
+}
+
+/* =========================================================
+   WHATSAPP SERVICE AREA BUTTON
+========================================================= */
+
+.service-area-button.whatsapp {
+  background: #25d366;
+  color: #ffffff;
+}
+
+/* =========================================================
+   SERVICE AREA BUTTON HOVER
+========================================================= */
+
+.service-area-button:hover {
+  transform: translateY(-4px);
+}
+
+/* =========================================================
+   MAP WRAPPER
+========================================================= */
+
+.map-wrapper {
+  width: 100%;
+  max-width: 1240px;
+
+  margin: 0 auto;
+
+  border-radius: 26px;
+  overflow: hidden;
+
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
+}
+
+/* =========================================================
+   MAP IFRAME
+========================================================= */
+
+.map-wrapper iframe {
+  width: 100%;
+  height: 500px;
+
+  border: none;
+
+  display: block;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
 
 .footer {
   width: 100%;
-  background: #111;
-  color: #ddd;
+
+  background: #111218;
+  color: #bfc1cb;
+
   text-align: center;
-  padding: 28px 20px;
-  font-size: 1rem;
+
+  padding: 24px;
+
+  font-size: 15px;
+  font-weight: 500;
 }
 
-/* RESPONSIVE */
+/* =========================================================
+   FLOATING WHATSAPP BUTTON
+========================================================= */
 
-@media (max-width: 1200px) {
-  .services-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.floating-whatsapp {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 9999;
+
+  width: 62px;
+  height: 62px;
+
+  border-radius: 50%;
+
+  background: #25d366;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-decoration: none;
+  font-size: 28px;
+
+  box-shadow: 0 16px 36px rgba(37, 211, 102, 0.35);
+  transition: 0.3s ease;
 }
 
-@media (max-width: 900px) {
-  .hero-features {
+/* =========================================================
+   FLOATING WHATSAPP HOVER
+========================================================= */
+
+.floating-whatsapp:hover {
+  transform: scale(1.08);
+}
+
+/* =========================================================
+   TABLET RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .header-container {
     grid-template-columns: 1fr;
+
+    padding-top: 18px;
+    padding-bottom: 18px;
+
+    gap: 20px;
+  }
+
+  .logo {
+    justify-content: center;
+    height: auto;
+  }
+
+  .logo-image {
+    max-width: 300px;
+    height: auto;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+  }
+
+  .header-icons {
+    justify-content: center;
+  }
+
+  .hero-section {
+    min-height: 720px;
   }
 
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .hero-title {
-    font-size: clamp(3rem, 10vw, 5rem);
+  .about-features {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 700px) {
+/* =========================================================
+   MOBILE RESPONSIVE
+========================================================= */
+
+@media (max-width: 650px) {
+
   .header-container {
-    flex-direction: column;
-    gap: 16px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    min-height: auto;
+
+    padding: 14px 16px;
+  }
+
+  .logo-image {
+    max-width: 240px;
+  }
+
+  .nav-links {
+    gap: 14px;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+  }
+
+  .icon-circle {
+    width: 46px;
+    height: 46px;
+
+    font-size: 19px;
+  }
+
+  .hero-section {
+    min-height: calc(100vh - 190px);
+  }
+
+  .hero-content {
+    padding: 60px 20px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(42px, 13vw, 64px);
+  }
+
+  .hero-text {
+    font-size: 16px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+  .section,
+  .about-section,
+  .faq-section,
+  .service-area-section {
+    padding-left: 18px;
+    padding-right: 18px;
   }
 
   .services-grid {
@@ -519,45 +1023,28 @@ textarea {
   }
 
   .service-card {
-    min-height: 180px;
+    min-height: 230px;
   }
 
-  .hero-title {
-    line-height: 1;
-    letter-spacing: -1px;
+  .about-features {
+    grid-template-columns: 1fr;
   }
 
-  .modal-card {
-    padding: 26px 18px;
+  .faq-card {
+    padding: 24px 22px;
   }
 
-  .map-frame iframe {
-    height: 380px;
-  }
-}
-
-@media (max-width: 500px) {
-  .logo {
-    text-align: center;
-    font-size: 2rem;
-  }
-
-  .hero-section {
-    padding-top: 50px;
-  }
-
-  .hero-description {
-    font-size: 1rem;
-  }
-
-  .section-title {
-    margin-bottom: 36px;
+  .map-wrapper iframe {
+    height: 360px;
   }
 
   .floating-whatsapp {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
+
     right: 18px;
     bottom: 18px;
+
+    font-size: 24px;
   }
 }
