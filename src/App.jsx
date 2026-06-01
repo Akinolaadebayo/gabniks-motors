@@ -6,6 +6,8 @@ import hero from "./assets/hero.jpg";
 function App() {
   const [selectedService, setSelectedService] = useState("");
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formStatus, setFormStatus] = useState("");
 
   const services = [
     {
@@ -76,11 +78,48 @@ function App() {
   const openBookingForm = (serviceTitle) => {
     setSelectedService(serviceTitle);
     setIsBookingOpen(true);
+    setFormStatus("");
   };
 
   const closeBookingForm = () => {
     setSelectedService("");
     setIsBookingOpen(false);
+    setFormStatus("");
+    setIsSubmitting(false);
+  };
+
+  const handleBookingSubmit = async (event) => {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+    setFormStatus("");
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("https://formspree.io/f/meenlrgy", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        form.reset();
+
+        setFormStatus(
+          "success"
+        );
+      } else {
+        setFormStatus("error");
+      }
+    } catch (error) {
+      setFormStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -347,120 +386,170 @@ function App() {
               Selected Service: <strong>{selectedService}</strong>
             </p>
 
-            <form
-              className="booking-form"
-              action="https://formspree.io/f/meenlrgy"
-              method="POST"
-            >
-              <input
-                type="hidden"
-                name="selectedService"
-                value={selectedService}
-              />
+            {formStatus === "success" && (
+              <div className="form-success-message">
+                <h3>Request Sent Successfully</h3>
+                <p>
+                  Thank you. Your booking request has been sent to Gabniks
+                  Motors. A team member will contact you shortly by phone,
+                  email, or WhatsApp.
+                </p>
 
-              <input
-                type="hidden"
-                name="_subject"
-                value={`New Gabniks Service Request - ${selectedService}`}
-              />
+                <p>
+                  For urgent lockout service, please call{" "}
+                  <a href="tel:+16787490856">+1 (678) 749-0856</a>.
+                </p>
 
-              <div className="form-row">
-                <label>
-                  Full Name
-                  <input
-                    type="text"
-                    name="fullName"
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </label>
-
-                <label>
-                  Phone Number
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Enter your phone number"
-                    required
-                  />
-                </label>
+                <button
+                  type="button"
+                  className="booking-submit-button"
+                  onClick={closeBookingForm}
+                >
+                  Close
+                </button>
               </div>
+            )}
 
-              <div className="form-row">
-                <label>
-                  Email Address
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter your email address"
-                  />
-                </label>
-
-                <label>
-                  Car Make
-                  <input
-                    type="text"
-                    name="carMake"
-                    placeholder="Example: Toyota"
-                  />
-                </label>
-              </div>
-
-              <div className="form-row">
-                <label>
-                  Car Model
-                  <input
-                    type="text"
-                    name="carModel"
-                    placeholder="Example: Camry"
-                  />
-                </label>
-
-                <label>
-                  Car Year
-                  <input
-                    type="text"
-                    name="carYear"
-                    placeholder="Example: 2018"
-                  />
-                </label>
-              </div>
-
-              <label>
-                Vehicle Location
+            {formStatus !== "success" && (
+              <form className="booking-form" onSubmit={handleBookingSubmit}>
                 <input
-                  type="text"
-                  name="vehicleLocation"
-                  placeholder="Enter vehicle location or city"
+                  type="hidden"
+                  name="selectedService"
+                  value={selectedService}
                 />
-              </label>
 
-              <div className="form-row">
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value={`New Gabniks Service Request - ${selectedService}`}
+                />
+
+                <div className="form-row">
+                  <label>
+                    Full Name
+                    <input
+                      type="text"
+                      name="fullName"
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    Phone Number
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Enter your phone number"
+                      required
+                    />
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label>
+                    Email Address
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Enter your email address"
+                    />
+                  </label>
+
+                  <label>
+                    Service Urgency
+                    <select name="serviceUrgency" required>
+                      <option value="">Select urgency level</option>
+                      <option value="Emergency / Locked out now">
+                        Emergency / Locked out now
+                      </option>
+                      <option value="Today">Today</option>
+                      <option value="This week">This week</option>
+                      <option value="Flexible appointment">
+                        Flexible appointment
+                      </option>
+                    </select>
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label>
+                    Car Make
+                    <input
+                      type="text"
+                      name="carMake"
+                      placeholder="Example: Toyota"
+                    />
+                  </label>
+
+                  <label>
+                    Car Model
+                    <input
+                      type="text"
+                      name="carModel"
+                      placeholder="Example: Camry"
+                    />
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label>
+                    Car Year
+                    <input
+                      type="text"
+                      name="carYear"
+                      placeholder="Example: 2018"
+                    />
+                  </label>
+
+                  <label>
+                    Vehicle Location
+                    <input
+                      type="text"
+                      name="vehicleLocation"
+                      placeholder="Enter vehicle location or city"
+                    />
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label>
+                    Preferred Date
+                    <input type="date" name="appointmentDate" />
+                  </label>
+
+                  <label>
+                    Preferred Time
+                    <input type="time" name="appointmentTime" />
+                  </label>
+                </div>
+
                 <label>
-                  Preferred Date
-                  <input type="date" name="appointmentDate" />
+                  Issue Description
+                  <textarea
+                    name="issueDescription"
+                    placeholder="Briefly describe what you need help with"
+                    rows="5"
+                    required
+                  ></textarea>
                 </label>
 
-                <label>
-                  Preferred Time
-                  <input type="time" name="appointmentTime" />
-                </label>
-              </div>
+                {formStatus === "error" && (
+                  <div className="form-error-message">
+                    Something went wrong. Please try again or call Gabniks
+                    Motors directly at +1 (678) 749-0856.
+                  </div>
+                )}
 
-              <label>
-                Issue Description
-                <textarea
-                  name="issueDescription"
-                  placeholder="Briefly describe what you need help with"
-                  rows="5"
-                  required
-                ></textarea>
-              </label>
-
-              <button type="submit" className="booking-submit-button">
-                Send Booking Request
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="booking-submit-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending Request..." : "Send Booking Request"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}

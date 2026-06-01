@@ -1176,4 +1176,113 @@ body {
   .form-row {
     grid-template-columns: 1fr;
   }
+
+  /* =========================================================
+   FORM SELECT FIELD
+========================================================= */
+
+.booking-form select {
+  width: 100%;
+
+  border: 1px solid #dddddd;
+  border-radius: 14px;
+
+  padding: 14px 16px;
+
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+  font-size: 15px;
+
+  outline: none;
+
+  background: #f8f8f8;
+  color: #111111;
+}
+
+/* =========================================================
+   FORM SELECT FOCUS
+========================================================= */
+
+.booking-form select:focus {
+  border-color: #d99a00;
+  background: #ffffff;
+}
+
+/* =========================================================
+   FORM SUCCESS MESSAGE
+========================================================= */
+
+.form-success-message {
+  background: #f3fff7;
+
+  border: 1px solid rgba(37, 211, 102, 0.35);
+  border-radius: 22px;
+
+  padding: 24px;
+
+  color: #111111;
+}
+
+/* =========================================================
+   FORM SUCCESS TITLE
+========================================================= */
+
+.form-success-message h3 {
+  color: #128c3f;
+
+  font-size: 24px;
+  font-weight: 900;
+
+  margin-bottom: 12px;
+}
+
+/* =========================================================
+   FORM SUCCESS TEXT
+========================================================= */
+
+.form-success-message p {
+  color: #333333;
+
+  font-size: 16px;
+  line-height: 1.6;
+
+  margin-bottom: 16px;
+}
+
+/* =========================================================
+   FORM SUCCESS LINK
+========================================================= */
+
+.form-success-message a {
+  color: #128c3f;
+  font-weight: 900;
+}
+
+/* =========================================================
+   FORM ERROR MESSAGE
+========================================================= */
+
+.form-error-message {
+  background: #fff3f3;
+
+  border: 1px solid rgba(220, 53, 69, 0.35);
+  border-radius: 14px;
+
+  padding: 14px 16px;
+
+  color: #b00020;
+
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   DISABLED SUBMIT BUTTON
+========================================================= */
+
+.booking-submit-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
 }
