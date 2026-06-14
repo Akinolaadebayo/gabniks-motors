@@ -1,27 +1,34 @@
 // =========================================================
-// GABNIKS MOTORS WEBSITE APPLICATION
-// Developer: Ami Adebayo
-// Role: Senior Developer
+// FILE: src/App.jsx
+// PROJECT: Gabniks Motors & Tech LLC
 //
-// Purpose:
-// Main React application for Gabniks Motors & Tech LLC.
-// Includes public website, customer signup/login,
-// Supabase service booking, profile storage,
-// profile editing, admin dashboard, request editing,
-// payment tracking, schedule urgency highlighting,
-// and admin-only delete controls.
+// FUNCTION:
+// Controls the full React website:
+// - Public homepage
+// - Signup/login
+// - Email verification mailbox button after signup
+// - Password reset
+// - Customer profile editing
+// - Service booking
+// - Developer/admin dashboard
+// - Admin search with Search button only
+// - Header account controls
+// - Temporary Welcome Back card
+//
+// LATEST UPDATE:
+// - Booking form now prevents duplicate submissions.
+// - After successful booking, customer sees Close or Book Another Service.
+// - Booking submit button disables while saving.
 // =========================================================
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { supabase } from "./libs/supabaseClient";
 import logoImage from "./assets/Gabnik_logo.png";
-import heroImage from "./assets/hero.jpg";
 
 // =========================================================
 // BUSINESS CONSTANTS
-// Purpose:
-// Central place to manage business contact links.
+// Affects: call buttons, WhatsApp buttons, email redirect, map.
 // =========================================================
 
 const BUSINESS_PHONE_DISPLAY = "+1 (678) 749-0856";
@@ -29,14 +36,14 @@ const BUSINESS_PHONE_LINK = "tel:+16787490856";
 const WHATSAPP_LINK = "https://wa.me/16787490856";
 const FACEBOOK_LINK = "#";
 const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_URL || "";
+const LIVE_SITE_URL = "https://gabniksmotors.com";
 
 const GOOGLE_MAP_EMBED_URL =
   "https://www.google.com/maps?q=Atlanta,%20GA,%20USA&output=embed";
 
 // =========================================================
-// SERVICE OPTIONS
-// Purpose:
-// One source of truth for service cards and admin dropdowns.
+// SERVICE LIST
+// Affects: service cards, booking modal, admin edit dropdown.
 // =========================================================
 
 const SERVICES = [
@@ -84,8 +91,7 @@ const SERVICES = [
 
 // =========================================================
 // ADMIN OPTIONS
-// Purpose:
-// Keeps admin edit values consistent.
+// Affects: admin request editing fields.
 // =========================================================
 
 const REQUEST_STATUS_OPTIONS = ["New", "Ongoing", "Finished", "Cancelled"];
@@ -105,9 +111,8 @@ const URGENCY_OPTIONS = [
 ];
 
 // =========================================================
-// FORMATTERS
-// Purpose:
-// Makes database values readable in the admin dashboard.
+// FORMAT HELPERS
+// Affects: admin tables and readable date/address/vehicle output.
 // =========================================================
 
 const formatDateTime = (dateValue) => {
@@ -115,9 +120,7 @@ const formatDateTime = (dateValue) => {
 
   const date = new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) {
-    return "Invalid date";
-  }
+  if (Number.isNaN(date.getTime())) return "Invalid date";
 
   return date.toLocaleString([], {
     month: "short",
@@ -133,9 +136,7 @@ const formatAppointment = (dateValue, timeValue) => {
 
   const date = new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) {
-    return "Invalid appointment";
-  }
+  if (Number.isNaN(date.getTime())) return "Invalid appointment";
 
   const dateText = date.toLocaleDateString([], {
     month: "short",
@@ -146,14 +147,105 @@ const formatAppointment = (dateValue, timeValue) => {
   return timeValue ? `${dateText} at ${timeValue}` : dateText;
 };
 
+const buildContactAddress = (street, city, stateProvince) => {
+  return [street, city, stateProvince].filter(Boolean).join(", ");
+};
+
+const formatCustomerAddress = (profile) => {
+  const separatedAddress = buildContactAddress(
+    profile.contact_street,
+    profile.contact_city,
+    profile.contact_state_province
+  );
+
+  return separatedAddress || profile.contact_address || "Not provided";
+};
+
+const formatVehicle = (item) => {
+  const vehicle = [
+    item.car_year || item.vehicle_year,
+    item.car_make || item.vehicle_make,
+    item.car_model || item.vehicle_model,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return vehicle || "Not provided";
+};
+
+const normalizeSearchValue = (value) => {
+  return String(value || "").toLowerCase().trim();
+};
+
 // =========================================================
-// SCHEDULE COLOUR HELPER
-// Purpose:
-// Helps admin quickly see appointment closeness.
-// Red = overdue/today
-// Amber = 1-3 days away
-// Green = 4+ days away
-// Gray = no date
+// EMAIL INBOX HELPERS
+// Affects: signup success message.
+// =========================================================
+
+const getEmailInboxUrl = (email) => {
+  const normalizedEmail = String(email || "").toLowerCase().trim();
+  const domain = normalizedEmail.split("@")[1] || "";
+
+  if (normalizedEmail.endsWith("@gmail.com")) {
+    return "https://mail.google.com/mail/u/0/#inbox";
+  }
+
+  if (
+    normalizedEmail.endsWith("@outlook.com") ||
+    normalizedEmail.endsWith("@hotmail.com") ||
+    normalizedEmail.endsWith("@live.com") ||
+    normalizedEmail.endsWith("@msn.com")
+  ) {
+    return "https://outlook.live.com/mail/0/inbox";
+  }
+
+  if (normalizedEmail.endsWith("@yahoo.com")) {
+    return "https://mail.yahoo.com/";
+  }
+
+  if (
+    normalizedEmail.endsWith("@icloud.com") ||
+    normalizedEmail.endsWith("@me.com") ||
+    normalizedEmail.endsWith("@mac.com")
+  ) {
+    return "https://www.icloud.com/mail";
+  }
+
+  return `https://www.google.com/search?q=${encodeURIComponent(
+    `${domain || "email"} email login`
+  )}`;
+};
+
+const getEmailProviderLabel = (email) => {
+  const normalizedEmail = String(email || "").toLowerCase().trim();
+
+  if (normalizedEmail.endsWith("@gmail.com")) return "Open Gmail Inbox";
+
+  if (
+    normalizedEmail.endsWith("@outlook.com") ||
+    normalizedEmail.endsWith("@hotmail.com") ||
+    normalizedEmail.endsWith("@live.com") ||
+    normalizedEmail.endsWith("@msn.com")
+  ) {
+    return "Open Outlook Inbox";
+  }
+
+  if (normalizedEmail.endsWith("@yahoo.com")) return "Open Yahoo Mail";
+
+  if (
+    normalizedEmail.endsWith("@icloud.com") ||
+    normalizedEmail.endsWith("@me.com") ||
+    normalizedEmail.endsWith("@mac.com")
+  ) {
+    return "Open iCloud Mail";
+  }
+
+  return "Open Email Provider";
+};
+
+// =========================================================
+// BADGE HELPERS
+// Affects: admin request schedule/status/payment badges.
 // =========================================================
 
 const getScheduleUrgency = (appointmentDate) => {
@@ -208,12 +300,6 @@ const getScheduleUrgency = (appointmentDate) => {
   };
 };
 
-// =========================================================
-// BADGE CLASS HELPERS
-// Purpose:
-// Converts database values into clean visual badges.
-// =========================================================
-
 const getRequestStatusClass = (status) => {
   const value = String(status || "New").toLowerCase();
 
@@ -244,11 +330,12 @@ const getUrgencyClass = (urgency) => {
   return "urgency-flexible";
 };
 
-// =========================================================
-// MAIN APP COMPONENT
-// =========================================================
-
 function App() {
+  const customerTableRef = useRef(null);
+  const requestPanelRef = useRef(null);
+  const customerPanelRef = useRef(null);
+  const adminSearchInputRef = useRef(null);
+
   const [session, setSession] = useState(null);
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
 
@@ -263,29 +350,66 @@ function App() {
   const [serviceRequests, setServiceRequests] = useState([]);
 
   const [adminFilter, setAdminFilter] = useState("all");
+  const [adminSearchTerm, setAdminSearchTerm] = useState("");
+
   const [editingRequestId, setEditingRequestId] = useState(null);
   const [editForm, setEditForm] = useState({});
 
   const [selectedRequestIds, setSelectedRequestIds] = useState([]);
   const [selectedProfileIds, setSelectedProfileIds] = useState([]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showHeroWelcome, setShowHeroWelcome] = useState(false);
   const [hashRoute, setHashRoute] = useState(window.location.hash);
+
+  // =========================================================
+  // BOOKING PROTECTION STATE
+  // Affects: booking modal submit behavior.
+  //
+  // What it does:
+  // - bookingSubmitting blocks double-click duplicate inserts.
+  // - bookingCompleted changes the UI after successful booking.
+  // =========================================================
+
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [bookingCompleted, setBookingCompleted] = useState(false);
 
   const [signUpForm, setSignUpForm] = useState({
     fullName: "",
     phone: "",
     email: "",
     password: "",
-    vehicleMake: "",
-    vehicleModel: "",
-    vehicleYear: "",
-    city: "",
+    contactStreet: "",
+    contactCity: "",
+    contactStateProvince: "",
     preferredContactMethod: "",
   });
+
+  const [signupSuccessEmail, setSignupSuccessEmail] = useState("");
 
   const [loginForm, setLoginForm] = useState({
     email: "",
     password: "",
+  });
+
+  const [loginFailedOnce, setLoginFailedOnce] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const getEmptyBookingForm = () => ({
+    serviceUrgency: "Flexible appointment",
+    fullName: currentUserProfile?.full_name || "",
+    phone: currentUserProfile?.phone || "",
+    email: currentUserProfile?.email || session?.user?.email || "",
+    carMake: "",
+    carModel: "",
+    carYear: "",
+    vehicleLocation:
+      currentUserProfile?.contact_city ||
+      currentUserProfile?.contact_address ||
+      "",
+    appointmentDate: "",
+    appointmentTime: "",
+    issueDescription: "",
   });
 
   const [bookingForm, setBookingForm] = useState({
@@ -302,31 +426,23 @@ function App() {
     issueDescription: "",
   });
 
-  // =========================================================
-  // PROFILE EDIT FORM STATE
-  // Purpose:
-  // Stores values for the Edit Profile modal.
-  // This edits public.profiles only, not Supabase Auth email/password.
-  // =========================================================
-
   const [profileEditForm, setProfileEditForm] = useState({
     fullName: "",
     phone: "",
-    vehicleMake: "",
-    vehicleModel: "",
-    vehicleYear: "",
-    city: "",
+    contactStreet: "",
+    contactCity: "",
+    contactStateProvince: "",
     preferredContactMethod: "",
   });
 
-  const isAdminRoute = hashRoute === "#admin";
-  const isAdmin = currentUserProfile?.role === "admin";
+  const userRole = String(currentUserProfile?.role || "")
+    .toLowerCase()
+    .trim();
 
-  // =========================================================
-  // AUTH SESSION LISTENER
-  // Purpose:
-  // Keeps the app aware of logged-in/logged-out state.
-  // =========================================================
+  const isDeveloper = userRole === "developer";
+  const isBusinessAdmin = userRole === "admin";
+  const canAccessAdmin = isDeveloper || isBusinessAdmin;
+  const isAdminRoute = hashRoute === "#admin";
 
   useEffect(() => {
     const loadSession = async () => {
@@ -347,12 +463,6 @@ function App() {
     };
   }, []);
 
-  // =========================================================
-  // HASH ROUTE LISTENER
-  // Purpose:
-  // Lets the admin dashboard open as a separate #admin route.
-  // =========================================================
-
   useEffect(() => {
     const onHashChange = () => setHashRoute(window.location.hash);
 
@@ -362,12 +472,6 @@ function App() {
       window.removeEventListener("hashchange", onHashChange);
     };
   }, []);
-
-  // =========================================================
-  // CURRENT PROFILE LOADER
-  // Purpose:
-  // Loads logged-in user's profile and role from Supabase.
-  // =========================================================
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -394,16 +498,23 @@ function App() {
     loadProfile();
   }, [session]);
 
-  // =========================================================
-  // ADMIN DATA LOADER
-  // Purpose:
-  // Loads profiles and service requests for admin dashboard.
-  // =========================================================
+  useEffect(() => {
+    if (!session || !currentUserProfile) {
+      setShowHeroWelcome(false);
+      return;
+    }
+
+    setShowHeroWelcome(true);
+
+    const timer = setTimeout(() => {
+      setShowHeroWelcome(false);
+    }, 15000);
+
+    return () => clearTimeout(timer);
+  }, [session, currentUserProfile?.id]);
 
   const loadAdminData = async () => {
     if (!session?.user?.id) return;
-
-    setAdminMessage("");
 
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
@@ -430,17 +541,86 @@ function App() {
   };
 
   useEffect(() => {
-    if (currentUserProfile?.role === "admin") {
+    if (canAccessAdmin) {
       loadAdminData();
     }
   }, [currentUserProfile]);
 
-  // =========================================================
-  // PROFILE EDIT MODAL OPENER
-  // Purpose:
-  // Opens a professional profile editor using the current
-  // logged-in user's saved profile details.
-  // =========================================================
+  useEffect(() => {
+    if (!adminMessage) return;
+
+    const timer = setTimeout(() => {
+      setAdminMessage("");
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, [adminMessage]);
+
+  const handleAdminRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      setAdminMessage("");
+
+      await Promise.all([
+        loadAdminData(),
+        new Promise((resolve) => setTimeout(resolve, 650)),
+      ]);
+
+      setAdminMessage("Dashboard refreshed successfully.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const scrollCustomerTable = (direction) => {
+    if (!customerTableRef.current) return;
+
+    const scrollAmountX = 340;
+    const scrollAmountY = 260;
+
+    if (direction === "left") {
+      customerTableRef.current.scrollBy({
+        left: -scrollAmountX,
+        behavior: "smooth",
+      });
+    }
+
+    if (direction === "right") {
+      customerTableRef.current.scrollBy({
+        left: scrollAmountX,
+        behavior: "smooth",
+      });
+    }
+
+    if (direction === "up") {
+      customerTableRef.current.scrollBy({
+        top: -scrollAmountY,
+        behavior: "smooth",
+      });
+    }
+
+    if (direction === "down") {
+      customerTableRef.current.scrollBy({
+        top: scrollAmountY,
+        behavior: "smooth",
+      });
+    }
+
+    if (direction === "start") {
+      customerTableRef.current.scrollTo({
+        left: 0,
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+
+    if (direction === "end") {
+      customerTableRef.current.scrollTo({
+        left: customerTableRef.current.scrollWidth,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const openProfileEditor = () => {
     if (!session || !currentUserProfile) {
@@ -454,25 +634,15 @@ function App() {
     setProfileEditForm({
       fullName: currentUserProfile.full_name || "",
       phone: currentUserProfile.phone || "",
-      vehicleMake: currentUserProfile.vehicle_make || "",
-      vehicleModel: currentUserProfile.vehicle_model || "",
-      vehicleYear: currentUserProfile.vehicle_year || "",
-      city: currentUserProfile.city || "",
+      contactStreet: currentUserProfile.contact_street || "",
+      contactCity: currentUserProfile.contact_city || "",
+      contactStateProvince: currentUserProfile.contact_state_province || "",
       preferredContactMethod:
         currentUserProfile.preferred_contact_method || "",
     });
 
     setActiveModal("editProfile");
   };
-
-  // =========================================================
-  // PROFILE UPDATE HANDLER
-  // Purpose:
-  // Allows a logged-in customer/admin to update their own
-  // public.profiles row from the website.
-  // Email/password are not changed here because Supabase Auth
-  // manages those separately.
-  // =========================================================
 
   const handleProfileUpdate = async (event) => {
     event.preventDefault();
@@ -483,13 +653,19 @@ function App() {
       return;
     }
 
+    const contactAddress = buildContactAddress(
+      profileEditForm.contactStreet,
+      profileEditForm.contactCity,
+      profileEditForm.contactStateProvince
+    );
+
     const updatePayload = {
       full_name: profileEditForm.fullName,
       phone: profileEditForm.phone,
-      vehicle_make: profileEditForm.vehicleMake,
-      vehicle_model: profileEditForm.vehicleModel,
-      vehicle_year: profileEditForm.vehicleYear,
-      city: profileEditForm.city,
+      contact_street: profileEditForm.contactStreet,
+      contact_city: profileEditForm.contactCity,
+      contact_state_province: profileEditForm.contactStateProvince,
+      contact_address: contactAddress,
       preferred_contact_method: profileEditForm.preferredContactMethod,
     };
 
@@ -510,46 +686,49 @@ function App() {
     setAuthMessage("");
     setActiveModal(null);
 
-    if (isAdmin) {
+    if (canAccessAdmin) {
       await loadAdminData();
     }
   };
 
-  // =========================================================
-  // SIGNUP HANDLER
-  // Purpose:
-  // Creates Supabase Auth account.
-  // Profile details are sent as Auth metadata so the Supabase
-  // trigger can create the profile row automatically.
-  // =========================================================
-
   const handleSignUp = async (event) => {
     event.preventDefault();
     setAuthMessage("");
+    setSignupSuccessEmail("");
+
+    const contactAddress = buildContactAddress(
+      signUpForm.contactStreet,
+      signUpForm.contactCity,
+      signUpForm.contactStateProvince
+    );
 
     const { error } = await supabase.auth.signUp({
       email: signUpForm.email,
       password: signUpForm.password,
       options: {
+        emailRedirectTo: LIVE_SITE_URL,
         data: {
           full_name: signUpForm.fullName,
           phone: signUpForm.phone,
-          vehicle_make: signUpForm.vehicleMake,
-          vehicle_model: signUpForm.vehicleModel,
-          vehicle_year: signUpForm.vehicleYear,
-          city: signUpForm.city,
+          contact_street: signUpForm.contactStreet,
+          contact_city: signUpForm.contactCity,
+          contact_state_province: signUpForm.contactStateProvince,
+          contact_address: contactAddress,
           preferred_contact_method: signUpForm.preferredContactMethod,
         },
       },
     });
 
     if (error) {
+      setSignupSuccessEmail("");
       setAuthMessage(`Could not create account: ${error.message}`);
       return;
     }
 
+    setSignupSuccessEmail(signUpForm.email.trim());
+
     setAuthMessage(
-      "Account created successfully. Please check your email if confirmation is required, then log in."
+      "Account created successfully. Please check your email to confirm your account before logging in."
     );
 
     setSignUpForm({
@@ -557,100 +736,147 @@ function App() {
       phone: "",
       email: "",
       password: "",
-      vehicleMake: "",
-      vehicleModel: "",
-      vehicleYear: "",
-      city: "",
+      contactStreet: "",
+      contactCity: "",
+      contactStateProvince: "",
       preferredContactMethod: "",
     });
   };
-
-  // =========================================================
-  // LOGIN HANDLER
-  // Purpose:
-  // Logs in customer/admin through Supabase Auth.
-  // =========================================================
 
   const handleLogin = async (event) => {
     event.preventDefault();
     setAuthMessage("");
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: loginForm.email,
+      email: loginForm.email.trim(),
       password: loginForm.password,
     });
 
     if (error) {
-      setAuthMessage(`Login failed: ${error.message}`);
+      setLoginFailedOnce(true);
+      setAuthMessage(
+        "Login failed. Please check your email and password. You can reset your password below."
+      );
       return;
     }
 
+    setLoginFailedOnce(false);
     setAuthMessage("");
     setLoginForm({ email: "", password: "" });
     setActiveModal(null);
   };
 
-  // =========================================================
-  // LOGOUT HANDLER
-  // Purpose:
-  // Ends session and returns user to public website mode.
-  // =========================================================
+  const handlePasswordReset = async () => {
+    setAuthMessage("");
+
+    const email = loginForm.email.trim().toLowerCase();
+
+    if (!email) {
+      setAuthMessage("Please enter your email address first.");
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+
+      const { data: emailExists, error: checkError } = await supabase.rpc(
+        "profile_email_exists",
+        {
+          lookup_email: email,
+        }
+      );
+
+      if (checkError) {
+        console.error("Email check error:", checkError);
+        setAuthMessage(
+          "Could not verify this email right now. Please try again shortly."
+        );
+        return;
+      }
+
+      if (!emailExists) {
+        setAuthMessage("Invalid email address. This email is not registered.");
+        return;
+      }
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: LIVE_SITE_URL,
+        }
+      );
+
+      if (resetError) {
+        setAuthMessage(`Could not send reset email: ${resetError.message}`);
+        return;
+      }
+
+      setAuthMessage(
+        "Password reset email sent. Please check your inbox and follow the link."
+      );
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setCurrentUserProfile(null);
+    setShowHeroWelcome(false);
     window.location.hash = "";
   };
 
-  // =========================================================
-  // BOOKING MODAL OPENER
-  // Purpose:
-  // Opens service request form and pre-fills profile details.
-  // =========================================================
-
   const openBookingModal = (serviceTitle = "") => {
+    setSelectedService(serviceTitle);
+    setBookingMessage("");
+    setBookingCompleted(false);
+    setBookingSubmitting(false);
+
     if (!session) {
       setAuthMessage("Please create an account or log in before booking.");
+      setSignupSuccessEmail("");
       setActiveModal("signup");
       return;
     }
 
-    setSelectedService(serviceTitle);
-    setBookingMessage("");
-
-    setBookingForm({
-      serviceUrgency: "Flexible appointment",
-      fullName: currentUserProfile?.full_name || "",
-      phone: currentUserProfile?.phone || "",
-      email: currentUserProfile?.email || session?.user?.email || "",
-      carMake: currentUserProfile?.vehicle_make || "",
-      carModel: currentUserProfile?.vehicle_model || "",
-      carYear: currentUserProfile?.vehicle_year || "",
-      vehicleLocation: currentUserProfile?.city || "",
-      appointmentDate: "",
-      appointmentTime: "",
-      issueDescription: "",
-    });
-
+    setBookingForm(getEmptyBookingForm());
     setActiveModal("booking");
   };
 
+  const handleBookAnotherService = () => {
+    setBookingMessage("");
+    setBookingCompleted(false);
+    setBookingSubmitting(false);
+    setBookingForm(getEmptyBookingForm());
+  };
+
   // =========================================================
-  // BOOKING SUBMISSION
-  // Purpose:
-  // Saves customer request to Supabase and optionally sends
-  // Formspree backup notification if VITE_FORMSPREE_URL exists.
+  // BOOKING SUBMIT
+  // Affects: service_requests table.
+  //
+  // What it does:
+  // - Prevents double-save duplicate submissions.
+  // - Disables submit button while request is saving.
+  // - After success, keeps the success message and shows exit options.
   // =========================================================
 
   const handleBookingSubmit = async (event) => {
     event.preventDefault();
+
+    if (bookingSubmitting || bookingCompleted) {
+      return;
+    }
+
     setBookingMessage("");
 
     if (!session?.user?.id) {
       setBookingMessage("Please create an account or log in before booking.");
+      setSignupSuccessEmail("");
       setActiveModal("signup");
       return;
     }
+
+    setBookingSubmitting(true);
 
     const payload = {
       user_id: session.user.id,
@@ -677,6 +903,7 @@ function App() {
 
     if (error) {
       console.error("Booking error:", error);
+      setBookingSubmitting(false);
       setBookingMessage(`Could not send request: ${error.message}`);
       return;
     }
@@ -695,20 +922,68 @@ function App() {
       }
     }
 
+    setBookingCompleted(true);
+    setBookingSubmitting(false);
+
     setBookingMessage(
-      `Request Sent Successfully. Thank you. A team member will contact you shortly. For urgent lockout service, please call ${BUSINESS_PHONE_DISPLAY}.`
+      `Request sent successfully. A team member will contact you shortly. For urgent lockout service, please call ${BUSINESS_PHONE_DISPLAY}.`
     );
 
-    if (isAdmin) {
+    if (canAccessAdmin) {
       loadAdminData();
     }
   };
 
-  // =========================================================
-  // ADMIN DASHBOARD FILTERS
-  // Purpose:
-  // Makes admin cards and filter tabs interactive.
-  // =========================================================
+  const searchValue = normalizeSearchValue(adminSearchTerm);
+
+  const matchesCustomerSearch = (profile) => {
+    if (!searchValue) return true;
+
+    const searchableText = [
+      profile.full_name,
+      profile.email,
+      profile.phone,
+      profile.contact_street,
+      profile.contact_city,
+      profile.contact_state_province,
+      profile.contact_address,
+      profile.preferred_contact_method,
+      profile.role,
+      formatCustomerAddress(profile),
+    ]
+      .map(normalizeSearchValue)
+      .join(" ");
+
+    return searchableText.includes(searchValue);
+  };
+
+  const matchesRequestSearch = (request) => {
+    if (!searchValue) return true;
+
+    const searchableText = [
+      request.full_name,
+      request.phone,
+      request.email,
+      request.selected_service,
+      request.service_urgency,
+      request.car_year,
+      request.car_make,
+      request.car_model,
+      formatVehicle(request),
+      request.vehicle_location,
+      request.appointment_date,
+      request.appointment_time,
+      request.request_status,
+      request.payment_status,
+      request.payment_note,
+      request.issue_description,
+      request.status,
+    ]
+      .map(normalizeSearchValue)
+      .join(" ");
+
+    return searchableText.includes(searchValue);
+  };
 
   const filteredRequests = useMemo(() => {
     const now = new Date();
@@ -716,8 +991,10 @@ function App() {
 
     sevenDaysAgo.setDate(now.getDate() - 7);
 
+    let baseRequests = serviceRequests;
+
     if (adminFilter === "urgent") {
-      return serviceRequests.filter((request) => {
+      baseRequests = serviceRequests.filter((request) => {
         const urgency = String(request.service_urgency || "").toLowerCase();
 
         return (
@@ -729,7 +1006,7 @@ function App() {
     }
 
     if (adminFilter === "recent") {
-      return serviceRequests.filter((request) => {
+      baseRequests = serviceRequests.filter((request) => {
         if (!request.created_at) return false;
 
         const created = new Date(request.created_at);
@@ -738,8 +1015,12 @@ function App() {
       });
     }
 
-    return serviceRequests;
-  }, [adminFilter, serviceRequests]);
+    return baseRequests.filter(matchesRequestSearch);
+  }, [adminFilter, serviceRequests, adminSearchTerm]);
+
+  const filteredProfiles = useMemo(() => {
+    return profiles.filter(matchesCustomerSearch);
+  }, [profiles, adminSearchTerm]);
 
   const urgentRequestsCount = useMemo(() => {
     return serviceRequests.filter((request) => {
@@ -768,11 +1049,49 @@ function App() {
     }).length;
   }, [serviceRequests]);
 
-  // =========================================================
-  // ADMIN EDIT HANDLERS
-  // Purpose:
-  // Allows admin to correct customer booking mistakes.
-  // =========================================================
+  const handleAdminSearchSubmit = (event) => {
+    event.preventDefault();
+
+    const cleanedSearch = adminSearchInputRef.current?.value?.trim() || "";
+
+    setAdminSearchTerm(cleanedSearch);
+
+    setTimeout(() => {
+      if (adminFilter === "customers") {
+        customerPanelRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        requestPanelRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 80);
+  };
+
+  const handleAdminSearchClear = () => {
+    if (adminSearchInputRef.current) {
+      adminSearchInputRef.current.value = "";
+    }
+
+    setAdminSearchTerm("");
+
+    setTimeout(() => {
+      if (adminFilter === "customers") {
+        customerPanelRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        requestPanelRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 80);
+  };
 
   const startEditingRequest = (request) => {
     setEditingRequestId(request.id);
@@ -835,12 +1154,6 @@ function App() {
     await loadAdminData();
   };
 
-  // =========================================================
-  // ADMIN SELECT / DELETE HANDLERS
-  // Purpose:
-  // Allows admin to select and delete database rows safely.
-  // =========================================================
-
   const toggleRequestSelection = (requestId) => {
     setSelectedRequestIds((currentIds) =>
       currentIds.includes(requestId)
@@ -875,15 +1188,19 @@ function App() {
   };
 
   const toggleAllProfiles = () => {
-    const profileIds = profiles.map((profile) => profile.id);
+    const profileIds = filteredProfiles.map((profile) => profile.id);
     const allProfilesSelected =
       profileIds.length > 0 &&
       profileIds.every((id) => selectedProfileIds.includes(id));
 
     if (allProfilesSelected) {
-      setSelectedProfileIds([]);
+      setSelectedProfileIds((currentIds) =>
+        currentIds.filter((id) => !profileIds.includes(id))
+      );
     } else {
-      setSelectedProfileIds(profileIds);
+      setSelectedProfileIds((currentIds) =>
+        Array.from(new Set([...currentIds, ...profileIds]))
+      );
     }
   };
 
@@ -943,12 +1260,6 @@ function App() {
     await loadAdminData();
   };
 
-  // =========================================================
-  // ADMIN DASHBOARD COMPONENT
-  // Purpose:
-  // Separate professional dashboard page for admin users.
-  // =========================================================
-
   const AdminDashboard = () => {
     if (!session) {
       return (
@@ -971,14 +1282,17 @@ function App() {
       );
     }
 
-    if (!isAdmin) {
+    if (!canAccessAdmin) {
       return (
         <main className="admin-page">
           <section className="admin-container">
             <div className="admin-panel access-panel">
               <p className="section-label">Restricted</p>
-              <h2>Admin Only</h2>
-              <p>This page is only available to Gabniks Motors admin users.</p>
+              <h2>Developer / Admin Only</h2>
+              <p>
+                This page is only available to Gabniks Motors developers and
+                admin users.
+              </p>
               <a href="#" className="admin-save-button">
                 Return to Website
               </a>
@@ -1000,9 +1314,19 @@ function App() {
 
           <div className="admin-header-actions">
             <a href="#">Website</a>
-            <button type="button" onClick={loadAdminData}>
-              Refresh
+
+            <button
+              type="button"
+              className={`admin-refresh-button ${
+                isRefreshing ? "refreshing" : ""
+              }`}
+              onClick={handleAdminRefresh}
+              disabled={isRefreshing}
+            >
+              <span className="refresh-icon">↻</span>
+              {isRefreshing ? "Refreshing..." : "Refresh"}
             </button>
+
             <button
               type="button"
               className="logout-button"
@@ -1029,7 +1353,9 @@ function App() {
               <p className="section-label">Signed in as</p>
               <h3>{currentUserProfile?.full_name || session.user.email}</h3>
               <p>{session.user.email}</p>
-              <span className="developer-badge">Admin Access</span>
+              <span className="developer-badge">
+                {isDeveloper ? "Developer Access" : "Admin Access"}
+              </span>
             </div>
           </div>
 
@@ -1117,6 +1443,54 @@ function App() {
             </button>
           </div>
 
+          <form
+            className="admin-search-panel"
+            onSubmit={handleAdminSearchSubmit}
+          >
+            <div className="admin-search-copy">
+              <span>Search Records</span>
+              <small>
+                {adminSearchTerm
+                  ? `${
+                      adminFilter === "customers"
+                        ? filteredProfiles.length
+                        : filteredRequests.length
+                    } matching record(s)`
+                  : "Type first, then click Search"}
+              </small>
+            </div>
+
+            <div className="admin-search-control">
+              <span className="admin-search-icon">⌕</span>
+
+              <input
+                ref={adminSearchInputRef}
+                type="search"
+                placeholder={
+                  adminFilter === "customers"
+                    ? "Search customers by name, phone, email, city, address, or role..."
+                    : "Search requests by customer, phone, email, service, vehicle, location, status, or notes..."
+                }
+                aria-label="Search admin records"
+                autoComplete="off"
+              />
+
+              <button type="submit" className="admin-search-submit">
+                Search
+              </button>
+
+              {adminSearchTerm && (
+                <button
+                  type="button"
+                  className="admin-search-clear"
+                  onClick={handleAdminSearchClear}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </form>
+
           {adminMessage && (
             <div
               className={`admin-message ${
@@ -1128,7 +1502,7 @@ function App() {
           )}
 
           {adminFilter !== "customers" && (
-            <section className="admin-panel">
+            <section className="admin-panel" ref={requestPanelRef}>
               <div className="admin-panel-header">
                 <div>
                   <p className="section-label">Operations</p>
@@ -1360,9 +1734,7 @@ function App() {
                                   />
                                 </div>
                               ) : (
-                                `${request.car_year || ""} ${
-                                  request.car_make || ""
-                                } ${request.car_model || ""}`
+                                formatVehicle(request)
                               )}
                             </td>
 
@@ -1385,7 +1757,7 @@ function App() {
                             <td>
                               {isEditing ? (
                                 <select
-                                  value={editForm.request_status || "New"}
+                                  value={editForm.request_status || ""}
                                   onChange={(event) =>
                                     setEditForm({
                                       ...editForm,
@@ -1401,7 +1773,7 @@ function App() {
                                 </select>
                               ) : (
                                 <span
-                                  className={`status-badge ${getRequestStatusClass(
+                                  className={`request-status-badge ${getRequestStatusClass(
                                     request.request_status
                                   )}`}
                                 >
@@ -1414,7 +1786,7 @@ function App() {
                               {isEditing ? (
                                 <div className="admin-edit-grid">
                                   <select
-                                    value={editForm.payment_status || "Unpaid"}
+                                    value={editForm.payment_status || ""}
                                     onChange={(event) =>
                                       setEditForm({
                                         ...editForm,
@@ -1429,7 +1801,7 @@ function App() {
                                     ))}
                                   </select>
 
-                                  <input
+                                  <textarea
                                     placeholder="Payment note"
                                     value={editForm.payment_note || ""}
                                     onChange={(event) =>
@@ -1441,9 +1813,9 @@ function App() {
                                   />
                                 </div>
                               ) : (
-                                <div className="payment-cell">
+                                <div>
                                   <span
-                                    className={`payment-badge ${getPaymentStatusClass(
+                                    className={`payment-status-badge ${getPaymentStatusClass(
                                       request.payment_status
                                     )}`}
                                   >
@@ -1451,7 +1823,9 @@ function App() {
                                   </span>
 
                                   {request.payment_note && (
-                                    <small>{request.payment_note}</small>
+                                    <span className="admin-customer-meta">
+                                      {request.payment_note}
+                                    </span>
                                   )}
                                 </div>
                               )}
@@ -1469,13 +1843,13 @@ function App() {
                                   }
                                 />
                               ) : (
-                                request.issue_description || "No issue provided"
+                                request.issue_description || "No notes"
                               )}
                             </td>
 
                             <td>
                               {isEditing ? (
-                                <div className="admin-action-buttons">
+                                <div className="admin-action-stack">
                                   <button
                                     type="button"
                                     className="admin-save-button"
@@ -1512,7 +1886,7 @@ function App() {
           )}
 
           {adminFilter === "customers" && (
-            <section className="admin-panel">
+            <section className="admin-panel" ref={customerPanelRef}>
               <div className="admin-panel-header">
                 <div>
                   <p className="section-label">Customers</p>
@@ -1520,13 +1894,13 @@ function App() {
                 </div>
 
                 <span className="admin-count-badge">
-                  {profiles.length} record(s)
+                  {filteredProfiles.length} record(s)
                 </span>
               </div>
 
               <div className="admin-toolbar">
                 <button type="button" onClick={toggleAllProfiles}>
-                  Select All
+                  Select Visible
                 </button>
 
                 <button
@@ -1545,7 +1919,52 @@ function App() {
                 Authentication.
               </p>
 
-              <div className="admin-table-wrapper">
+              <div className="table-navigation-controls">
+                <button
+                  type="button"
+                  onClick={() => scrollCustomerTable("start")}
+                >
+                  ⏮ Start
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => scrollCustomerTable("left")}
+                >
+                  ← Left
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => scrollCustomerTable("right")}
+                >
+                  Right →
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => scrollCustomerTable("end")}
+                >
+                  End ⏭
+                </button>
+
+                <button type="button" onClick={() => scrollCustomerTable("up")}>
+                  ↑ Up
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => scrollCustomerTable("down")}
+                >
+                  Down ↓
+                </button>
+              </div>
+
+              <div
+                className="admin-table-wrapper customer-scroll-wrapper"
+                ref={customerTableRef}
+                tabIndex="-1"
+              >
                 <table className="admin-table customer-table">
                   <thead>
                     <tr>
@@ -1554,20 +1973,22 @@ function App() {
                       <th>Name</th>
                       <th>Email</th>
                       <th>Phone</th>
-                      <th>Vehicle</th>
+                      <th>Street</th>
                       <th>City</th>
+                      <th>State / Province</th>
+                      <th>Full Address</th>
                       <th>Contact Method</th>
                       <th>Role</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {profiles.length === 0 ? (
+                    {filteredProfiles.length === 0 ? (
                       <tr>
-                        <td colSpan="9">No customer profiles found.</td>
+                        <td colSpan="11">No customer profiles found.</td>
                       </tr>
                     ) : (
-                      profiles.map((profile) => (
+                      filteredProfiles.map((profile) => (
                         <tr key={profile.id}>
                           <td>
                             <input
@@ -1579,16 +2000,17 @@ function App() {
                               aria-label="Select customer profile"
                             />
                           </td>
+
                           <td>{formatDateTime(profile.created_at)}</td>
                           <td>{profile.full_name || "No name"}</td>
                           <td>{profile.email || "No email"}</td>
                           <td>{profile.phone || "No phone"}</td>
+                          <td>{profile.contact_street || "Not provided"}</td>
+                          <td>{profile.contact_city || "Not provided"}</td>
                           <td>
-                            {profile.vehicle_year || ""}{" "}
-                            {profile.vehicle_make || ""}{" "}
-                            {profile.vehicle_model || ""}
+                            {profile.contact_state_province || "Not provided"}
                           </td>
-                          <td>{profile.city || "No city"}</td>
+                          <td>{formatCustomerAddress(profile)}</td>
                           <td>
                             {profile.preferred_contact_method || "Not selected"}
                           </td>
@@ -1610,10 +2032,6 @@ function App() {
             </section>
           )}
         </section>
-
-        <footer className="admin-footer">
-          <p>System maintained by Senior Developer Ami Adebayo.</p>
-        </footer>
       </main>
     );
   };
@@ -1624,106 +2042,140 @@ function App() {
         <AdminDashboard />
       ) : (
         <>
-          <header className="header">
-            <div className="header-container">
-              <a href="#home" className="logo">
+          <header className="header site-header">
+            <div className="header-container site-header-inner">
+              <a href="#" className="logo site-logo">
                 <img
                   src={logoImage}
                   alt="Gabniks Motors"
-                  className="logo-image"
+                  className="logo-image site-logo-image"
                 />
               </a>
 
-              <nav className="nav-links">
+              <nav className="nav-links main-nav">
                 <a href="#home">Home</a>
                 <a href="#services">Services</a>
                 <a href="#about">About</a>
                 <a href="#gallery">Gallery</a>
                 <a href="#faq">FAQ</a>
                 <a href="#contact">Contact</a>
+              </nav>
 
+              <div className="header-right-actions">
                 {!session && (
-                  <>
+                  <div className="auth-action-group">
                     <button
                       type="button"
-                      className="nav-button"
-                      onClick={() => setActiveModal("signup")}
+                      className="nav-button header-auth-button"
+                      onClick={() => {
+                        setAuthMessage("");
+                        setSignupSuccessEmail("");
+                        setLoginFailedOnce(false);
+                        setActiveModal("signup");
+                      }}
                     >
                       Sign Up
                     </button>
 
                     <button
                       type="button"
-                      className="nav-button"
-                      onClick={() => setActiveModal("login")}
+                      className="nav-button header-auth-button"
+                      onClick={() => {
+                        setAuthMessage("");
+                        setLoginFailedOnce(false);
+                        setActiveModal("login");
+                      }}
                     >
                       Login
                     </button>
-                  </>
+                  </div>
                 )}
 
                 {session && (
-                  <button
-                    type="button"
-                    className="nav-button"
-                    onClick={handleLogout}
+                  <div className="account-action-group">
+                    {canAccessAdmin && (
+                      <a
+                        href="#admin"
+                        className="admin-nav-link header-admin-pill"
+                      >
+                        Admin
+                      </a>
+                    )}
+
+                    {currentUserProfile && !showHeroWelcome && (
+                      <div className="header-user-chip">
+                        <span>
+                          {currentUserProfile.full_name || session.user.email}
+                        </span>
+
+                        <button type="button" onClick={openProfileEditor}>
+                          Edit
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="nav-button logout-nav-button header-logout-button"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+
+                <div className="header-icons site-header-icons">
+                  <a
+                    href={BUSINESS_PHONE_LINK}
+                    className="icon-circle phone-icon"
+                    aria-label="Call Gabniks Motors"
                   >
-                    Logout
-                  </button>
-                )}
-
-                {isAdmin && (
-                  <a href="#admin" className="admin-nav-link">
-                    Admin
+                    ☎
                   </a>
-                )}
-              </nav>
 
-              <div className="header-icons">
-                <a className="icon-circle phone-icon" href={BUSINESS_PHONE_LINK}>
-                  ☎
-                </a>
+                  <a
+                    href={WHATSAPP_LINK}
+                    className="icon-circle message-icon"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="WhatsApp Gabniks Motors"
+                  >
+                    💬
+                  </a>
 
-                <a
-                  className="icon-circle message-icon"
-                  href={WHATSAPP_LINK}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  💬
-                </a>
-
-                <a
-                  className="icon-circle facebook-icon"
-                  href={FACEBOOK_LINK}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  f
-                </a>
+                  <a
+                    href={FACEBOOK_LINK}
+                    className="icon-circle facebook-icon"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
+                  >
+                    f
+                  </a>
+                </div>
               </div>
             </div>
           </header>
 
           <section id="home" className="hero-section">
             <div className="hero-background">
-              <img src={heroImage} alt="Automotive locksmith service" />
-              <div className="hero-overlay"></div>
+              <img src="/gabniks-poster.jpg" alt="Gabniks Motors services" />
             </div>
+            <div className="hero-overlay"></div>
 
-            {session && currentUserProfile && (
+            {session && currentUserProfile && showHeroWelcome && (
               <div className="hero-user-strip">
                 <div className="hero-user-card">
-                  <span>Welcome back</span>
-
+                  <span>Welcome Back</span>
                   <strong>
                     {currentUserProfile.full_name || session.user.email}
                   </strong>
-
                   <small>
-                    {currentUserProfile.role === "admin"
-                      ? "Admin Account"
-                      : "Customer Account"}
+                    {isDeveloper
+                      ? "Developer Account"
+                      : isBusinessAdmin
+                        ? "Admin Account"
+                        : "Customer Account"}
                   </small>
 
                   <button
@@ -1799,9 +2251,7 @@ function App() {
               <p className="about-text">
                 Gabniks Motors & Tech LLC provides reliable mobile automotive
                 support for drivers who need fast, skilled, and professional
-                service. From key programming to diagnostics and lockout
-                support, the business is built around trust, speed, and
-                excellent customer care.
+                service.
               </p>
 
               <div className="about-features">
@@ -1834,8 +2284,8 @@ function App() {
                   <h3>Do I need an account to book?</h3>
                   <p>
                     Yes. Creating an account helps Gabniks Motors keep your
-                    service history, vehicle details, and booking records in one
-                    secure place.
+                    customer contact profile and booking records in one secure
+                    place.
                   </p>
                 </div>
 
@@ -1907,21 +2357,18 @@ function App() {
           </footer>
 
           <a
-            className="floating-whatsapp"
             href={WHATSAPP_LINK}
+            className="floating-whatsapp"
             target="_blank"
             rel="noreferrer"
+            aria-label="WhatsApp"
           >
             💬
           </a>
 
-          <button
-            type="button"
-            className="back-to-top"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
+          <a href="#home" className="back-to-top" aria-label="Back to top">
             ↑
-          </button>
+          </a>
         </>
       )}
 
@@ -1939,15 +2386,36 @@ function App() {
             <p className="section-label">Customer Account</p>
             <h2>Create Account</h2>
 
-            {authMessage && <div className="form-message">{authMessage}</div>}
+            {authMessage && (
+              <div className="form-message">
+                <p>{authMessage}</p>
 
-            <form onSubmit={handleSignUp} className="auth-form">
+                {signupSuccessEmail && (
+                  <div className="verification-actions">
+                    <a
+                      className="email-inbox-button"
+                      href={getEmailInboxUrl(signupSuccessEmail)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {getEmailProviderLabel(signupSuccessEmail)}
+                    </a>
+
+                    <p className="verification-help-text">
+                      After confirming your email, return to this website and
+                      log in.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <form className="auth-form" onSubmit={handleSignUp}>
               <div className="form-grid">
                 <label>
-                  Full Name
+                  Full Name <span className="required-mark">*</span>
                   <input
-                    required
-                    placeholder="Enter full name"
+                    type="text"
                     value={signUpForm.fullName}
                     onChange={(event) =>
                       setSignUpForm({
@@ -1955,14 +2423,15 @@ function App() {
                         fullName: event.target.value,
                       })
                     }
+                    placeholder="Enter full name"
+                    required
                   />
                 </label>
 
                 <label>
-                  Phone Number
+                  Phone Number <span className="required-mark">*</span>
                   <input
-                    required
-                    placeholder="Enter phone number"
+                    type="tel"
                     value={signUpForm.phone}
                     onChange={(event) =>
                       setSignUpForm({
@@ -1970,15 +2439,15 @@ function App() {
                         phone: event.target.value,
                       })
                     }
+                    placeholder="Enter phone number"
+                    required
                   />
                 </label>
 
                 <label>
-                  Email Address
+                  Email Address <span className="required-mark">*</span>
                   <input
-                    required
                     type="email"
-                    placeholder="Enter email address"
                     value={signUpForm.email}
                     onChange={(event) =>
                       setSignUpForm({
@@ -1986,15 +2455,15 @@ function App() {
                         email: event.target.value,
                       })
                     }
+                    placeholder="Enter email address"
+                    required
                   />
                 </label>
 
                 <label>
-                  Password
+                  Password <span className="required-mark">*</span>
                   <input
-                    required
                     type="password"
-                    placeholder="Create password"
                     value={signUpForm.password}
                     onChange={(event) =>
                       setSignUpForm({
@@ -2002,94 +2471,87 @@ function App() {
                         password: event.target.value,
                       })
                     }
+                    placeholder="Create password"
+                    required
+                    minLength="6"
                   />
                 </label>
 
                 <label>
-                  Vehicle Make
+                  Street Address
                   <input
-                    placeholder="Example: Toyota"
-                    value={signUpForm.vehicleMake}
+                    type="text"
+                    value={signUpForm.contactStreet}
                     onChange={(event) =>
                       setSignUpForm({
                         ...signUpForm,
-                        vehicleMake: event.target.value,
+                        contactStreet: event.target.value,
                       })
                     }
+                    placeholder="Street address"
                   />
                 </label>
 
                 <label>
-                  Vehicle Model
+                  City
                   <input
-                    placeholder="Example: Camry"
-                    value={signUpForm.vehicleModel}
+                    type="text"
+                    value={signUpForm.contactCity}
                     onChange={(event) =>
                       setSignUpForm({
                         ...signUpForm,
-                        vehicleModel: event.target.value,
+                        contactCity: event.target.value,
                       })
                     }
+                    placeholder="City"
                   />
                 </label>
 
                 <label>
-                  Vehicle Year
+                  State / Province
                   <input
-                    placeholder="Example: 2018"
-                    value={signUpForm.vehicleYear}
+                    type="text"
+                    value={signUpForm.contactStateProvince}
                     onChange={(event) =>
                       setSignUpForm({
                         ...signUpForm,
-                        vehicleYear: event.target.value,
+                        contactStateProvince: event.target.value,
                       })
                     }
+                    placeholder="State or province"
                   />
                 </label>
 
                 <label>
-                  City / Service Area
-                  <input
-                    placeholder="Example: Atlanta"
-                    value={signUpForm.city}
+                  Preferred Contact Method
+                  <select
+                    value={signUpForm.preferredContactMethod}
                     onChange={(event) =>
                       setSignUpForm({
                         ...signUpForm,
-                        city: event.target.value,
+                        preferredContactMethod: event.target.value,
                       })
                     }
-                  />
+                  >
+                    <option value="">Select contact method</option>
+                    <option value="Phone">Phone</option>
+                    <option value="Email">Email</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                  </select>
                 </label>
               </div>
 
-              <label>
-                Preferred Contact Method
-                <select
-                  required
-                  value={signUpForm.preferredContactMethod}
-                  onChange={(event) =>
-                    setSignUpForm({
-                      ...signUpForm,
-                      preferredContactMethod: event.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select contact method</option>
-                  <option value="Phone">Phone</option>
-                  <option value="Email">Email</option>
-                  <option value="WhatsApp">WhatsApp</option>
-                </select>
-              </label>
-
-              <button type="submit" className="full-submit-button">
+              <button className="full-submit-button" type="submit">
                 Create Account
               </button>
 
               <button
-                type="button"
                 className="modal-switch-button"
+                type="button"
                 onClick={() => {
                   setAuthMessage("");
+                  setSignupSuccessEmail("");
+                  setLoginFailedOnce(false);
                   setActiveModal("login");
                 }}
               >
@@ -2116,13 +2578,11 @@ function App() {
 
             {authMessage && <div className="form-message">{authMessage}</div>}
 
-            <form onSubmit={handleLogin} className="auth-form">
+            <form className="auth-form" onSubmit={handleLogin}>
               <label>
                 Email Address
                 <input
-                  required
                   type="email"
-                  placeholder="Enter email"
                   value={loginForm.email}
                   onChange={(event) =>
                     setLoginForm({
@@ -2130,15 +2590,15 @@ function App() {
                       email: event.target.value,
                     })
                   }
+                  placeholder="Enter email address"
+                  required
                 />
               </label>
 
               <label>
                 Password
                 <input
-                  required
                   type="password"
-                  placeholder="Enter password"
                   value={loginForm.password}
                   onChange={(event) =>
                     setLoginForm({
@@ -2146,18 +2606,33 @@ function App() {
                       password: event.target.value,
                     })
                   }
+                  placeholder="Enter password"
+                  required
                 />
               </label>
 
-              <button type="submit" className="full-submit-button">
+              <button className="full-submit-button" type="submit">
                 Login
               </button>
 
+              {loginFailedOnce && (
+                <button
+                  className="password-reset-button"
+                  type="button"
+                  onClick={handlePasswordReset}
+                  disabled={resetLoading}
+                >
+                  {resetLoading ? "Checking Email..." : "Reset Password"}
+                </button>
+              )}
+
               <button
-                type="button"
                 className="modal-switch-button"
+                type="button"
                 onClick={() => {
                   setAuthMessage("");
+                  setSignupSuccessEmail("");
+                  setLoginFailedOnce(false);
                   setActiveModal("signup");
                 }}
               >
@@ -2174,31 +2649,27 @@ function App() {
             <button
               type="button"
               className="modal-close-button"
-              onClick={() => {
-                setAuthMessage("");
-                setActiveModal(null);
-              }}
+              onClick={() => setActiveModal(null)}
             >
               ×
             </button>
 
-            <p className="section-label">Account Profile</p>
+            <p className="section-label">Customer Profile</p>
             <h2>Edit Profile</h2>
 
             <p className="profile-edit-description">
-              Update your contact and vehicle details. These details help
-              Gabniks Motors prepare faster when you book a service.
+              Update your contact details. Vehicle information is collected when
+              you book a service.
             </p>
 
             {authMessage && <div className="form-message">{authMessage}</div>}
 
-            <form onSubmit={handleProfileUpdate} className="auth-form">
+            <form className="auth-form" onSubmit={handleProfileUpdate}>
               <div className="form-grid">
                 <label>
-                  Full Name
+                  Full Name <span className="required-mark">*</span>
                   <input
-                    required
-                    placeholder="Enter full name"
+                    type="text"
                     value={profileEditForm.fullName}
                     onChange={(event) =>
                       setProfileEditForm({
@@ -2206,14 +2677,14 @@ function App() {
                         fullName: event.target.value,
                       })
                     }
+                    required
                   />
                 </label>
 
                 <label>
-                  Phone Number
+                  Phone Number <span className="required-mark">*</span>
                   <input
-                    required
-                    placeholder="Enter phone number"
+                    type="tel"
                     value={profileEditForm.phone}
                     onChange={(event) =>
                       setProfileEditForm({
@@ -2221,93 +2692,81 @@ function App() {
                         phone: event.target.value,
                       })
                     }
+                    required
                   />
                 </label>
 
                 <label>
-                  Vehicle Make
+                  Street Address
                   <input
-                    placeholder="Example: Toyota"
-                    value={profileEditForm.vehicleMake}
+                    type="text"
+                    value={profileEditForm.contactStreet}
                     onChange={(event) =>
                       setProfileEditForm({
                         ...profileEditForm,
-                        vehicleMake: event.target.value,
+                        contactStreet: event.target.value,
                       })
                     }
+                    placeholder="Street address"
                   />
                 </label>
 
                 <label>
-                  Vehicle Model
+                  City
                   <input
-                    placeholder="Example: Camry"
-                    value={profileEditForm.vehicleModel}
+                    type="text"
+                    value={profileEditForm.contactCity}
                     onChange={(event) =>
                       setProfileEditForm({
                         ...profileEditForm,
-                        vehicleModel: event.target.value,
+                        contactCity: event.target.value,
                       })
                     }
+                    placeholder="City"
                   />
                 </label>
 
                 <label>
-                  Vehicle Year
+                  State / Province
                   <input
-                    placeholder="Example: 2018"
-                    value={profileEditForm.vehicleYear}
+                    type="text"
+                    value={profileEditForm.contactStateProvince}
                     onChange={(event) =>
                       setProfileEditForm({
                         ...profileEditForm,
-                        vehicleYear: event.target.value,
+                        contactStateProvince: event.target.value,
                       })
                     }
+                    placeholder="State or province"
                   />
                 </label>
 
                 <label>
-                  City / Service Area
-                  <input
-                    placeholder="Example: Atlanta"
-                    value={profileEditForm.city}
+                  Preferred Contact Method
+                  <select
+                    value={profileEditForm.preferredContactMethod}
                     onChange={(event) =>
                       setProfileEditForm({
                         ...profileEditForm,
-                        city: event.target.value,
+                        preferredContactMethod: event.target.value,
                       })
                     }
-                  />
+                  >
+                    <option value="">Select contact method</option>
+                    <option value="Phone">Phone</option>
+                    <option value="Email">Email</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                  </select>
                 </label>
               </div>
-
-              <label>
-                Preferred Contact Method
-                <select
-                  required
-                  value={profileEditForm.preferredContactMethod}
-                  onChange={(event) =>
-                    setProfileEditForm({
-                      ...profileEditForm,
-                      preferredContactMethod: event.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select contact method</option>
-                  <option value="Phone">Phone</option>
-                  <option value="Email">Email</option>
-                  <option value="WhatsApp">WhatsApp</option>
-                </select>
-              </label>
 
               <div className="profile-email-note">
-                <strong>Email:</strong> {session?.user?.email}
-                <br />
-                Email and password changes should be handled separately for
-                security.
+                <strong>Account email:</strong>{" "}
+                {session?.user?.email || "Not available"}. Email/password
+                changes should be handled separately for security.
               </div>
 
-              <button type="submit" className="full-submit-button">
+              <button className="full-submit-button" type="submit">
                 Save Profile
               </button>
             </form>
@@ -2330,14 +2789,21 @@ function App() {
             <h2>Request Service</h2>
 
             <p className="selected-service-text">
-              Selected Service:{" "}
-              <strong>{selectedService || "General Service Request"}</strong>
+              Selected Service: <strong>{selectedService}</strong>
             </p>
 
-            {bookingMessage ? (
-              <div className="booking-success-card">
-                <h3>Request Sent Successfully</h3>
-                <p>{bookingMessage}</p>
+            {bookingMessage && (
+              <div
+                className={`form-message ${
+                  bookingCompleted ? "booking-success-message" : ""
+                }`}
+              >
+                {bookingMessage}
+              </div>
+            )}
+
+            {bookingCompleted ? (
+              <div className="booking-complete-actions">
                 <button
                   type="button"
                   className="full-submit-button"
@@ -2345,9 +2811,17 @@ function App() {
                 >
                   Close
                 </button>
+
+                <button
+                  type="button"
+                  className="book-another-button"
+                  onClick={handleBookAnotherService}
+                >
+                  Book Another Service
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleBookingSubmit} className="booking-form">
+              <form className="booking-form" onSubmit={handleBookingSubmit}>
                 <label>
                   Service Urgency
                   <select
@@ -2358,12 +2832,14 @@ function App() {
                         serviceUrgency: event.target.value,
                       })
                     }
+                    required
                   >
-                    {URGENCY_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
+                    <option value="Flexible appointment">
+                      Flexible appointment
+                    </option>
+                    <option value="Today">Today</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="Emergency">Emergency</option>
                   </select>
                 </label>
 
@@ -2371,7 +2847,7 @@ function App() {
                   <label>
                     Full Name
                     <input
-                      required
+                      type="text"
                       value={bookingForm.fullName}
                       onChange={(event) =>
                         setBookingForm({
@@ -2379,13 +2855,14 @@ function App() {
                           fullName: event.target.value,
                         })
                       }
+                      required
                     />
                   </label>
 
                   <label>
                     Phone Number
                     <input
-                      required
+                      type="tel"
                       value={bookingForm.phone}
                       onChange={(event) =>
                         setBookingForm({
@@ -2393,13 +2870,13 @@ function App() {
                           phone: event.target.value,
                         })
                       }
+                      required
                     />
                   </label>
 
                   <label>
                     Email Address
                     <input
-                      required
                       type="email"
                       value={bookingForm.email}
                       onChange={(event) =>
@@ -2408,52 +2885,14 @@ function App() {
                           email: event.target.value,
                         })
                       }
-                    />
-                  </label>
-
-                  <label>
-                    Vehicle Location
-                    <input
                       required
-                      value={bookingForm.vehicleLocation}
-                      onChange={(event) =>
-                        setBookingForm({
-                          ...bookingForm,
-                          vehicleLocation: event.target.value,
-                        })
-                      }
                     />
                   </label>
 
                   <label>
-                    Car Make
+                    Vehicle Year
                     <input
-                      value={bookingForm.carMake}
-                      onChange={(event) =>
-                        setBookingForm({
-                          ...bookingForm,
-                          carMake: event.target.value,
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label>
-                    Car Model
-                    <input
-                      value={bookingForm.carModel}
-                      onChange={(event) =>
-                        setBookingForm({
-                          ...bookingForm,
-                          carModel: event.target.value,
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label>
-                    Car Year
-                    <input
+                      type="text"
                       value={bookingForm.carYear}
                       onChange={(event) =>
                         setBookingForm({
@@ -2461,6 +2900,56 @@ function App() {
                           carYear: event.target.value,
                         })
                       }
+                      placeholder="Example: 2018"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    Vehicle Make
+                    <input
+                      type="text"
+                      value={bookingForm.carMake}
+                      onChange={(event) =>
+                        setBookingForm({
+                          ...bookingForm,
+                          carMake: event.target.value,
+                        })
+                      }
+                      placeholder="Example: Toyota"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    Vehicle Model
+                    <input
+                      type="text"
+                      value={bookingForm.carModel}
+                      onChange={(event) =>
+                        setBookingForm({
+                          ...bookingForm,
+                          carModel: event.target.value,
+                        })
+                      }
+                      placeholder="Example: Camry"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    Vehicle Location
+                    <input
+                      type="text"
+                      value={bookingForm.vehicleLocation}
+                      onChange={(event) =>
+                        setBookingForm({
+                          ...bookingForm,
+                          vehicleLocation: event.target.value,
+                        })
+                      }
+                      placeholder="City or service address"
+                      required
                     />
                   </label>
 
@@ -2494,9 +2983,8 @@ function App() {
                 </div>
 
                 <label>
-                  Issue Description
+                  Issue / Notes
                   <textarea
-                    required
                     value={bookingForm.issueDescription}
                     onChange={(event) =>
                       setBookingForm({
@@ -2504,11 +2992,17 @@ function App() {
                         issueDescription: event.target.value,
                       })
                     }
+                    placeholder="Briefly describe the issue"
+                    required
                   ></textarea>
                 </label>
 
-                <button type="submit" className="full-submit-button">
-                  Send Service Request
+                <button
+                  className="full-submit-button"
+                  type="submit"
+                  disabled={bookingSubmitting}
+                >
+                  {bookingSubmitting ? "Submitting Request..." : "Submit Service Request"}
                 </button>
               </form>
             )}
