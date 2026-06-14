@@ -1,244 +1,218 @@
 /* =========================================================
-   GOOGLE FONT IMPORT
+   GABNIKS MOTORS WEBSITE STYLES
+   Developer: Ami Adebayo
+   Role: Senior Developer
+
+   Purpose:
+   Complete styling for public website, responsive header,
+   hero section, subtle 3D hero poster animation,
+   visible call-to-action buttons, welcome card,
+   edit profile button, service cards, modals, map area,
+   floating buttons, and admin dashboard.
 ========================================================= */
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap");
 
 /* =========================================================
-   ROOT AND PAGE RESET
+   ROOT RESET
 ========================================================= */
 
-html,
-body,
-#root {
+* {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
   width: 100%;
   min-width: 100%;
   min-height: 100%;
   margin: 0;
   padding: 0;
-}
-
-/* =========================================================
-   GLOBAL RESET
-========================================================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* =========================================================
-   HTML
-========================================================= */
-
-html {
-  scroll-behavior: smooth;
+  background: #0e1015;
+  color: #111218;
+  font-family: "Inter", Arial, sans-serif;
   overflow-x: hidden;
 }
-
-/* =========================================================
-   BODY
-========================================================= */
-
-body {
-  font-family: "Inter", Arial, Helvetica, sans-serif;
-  background: #111218;
-  color: #111111;
-  overflow-x: hidden;
-}
-
-/* =========================================================
-   ROOT CONTAINER FIX
-========================================================= */
 
 #root {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  text-align: initial;
+  width: 100%;
+  min-height: 100vh;
 }
 
-/* =========================================================
-   APP WRAPPER
-========================================================= */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
 .app {
   width: 100%;
-  min-width: 100%;
   min-height: 100vh;
-  background: #111218;
   overflow-x: hidden;
 }
 
 /* =========================================================
-   HEADER
+   HEADER / NAVIGATION
 ========================================================= */
 
 .header {
   width: 100%;
+  min-height: 96px;
   background: #ffffff;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 20;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
-
-/* =========================================================
-   HEADER CONTAINER
-========================================================= */
 
 .header-container {
   width: 100%;
-  max-width: none;
-  margin: 0;
   min-height: 96px;
-  padding: 0 clamp(24px, 5vw, 70px);
+  margin: 0 auto;
+  padding: 10px clamp(18px, 4vw, 64px);
   display: grid;
-  grid-template-columns: 300px 1fr auto;
+  grid-template-columns: minmax(210px, 300px) minmax(420px, 1fr) auto;
   align-items: center;
-  gap: 28px;
+  gap: clamp(14px, 2vw, 30px);
 }
-
-/* =========================================================
-   LOGO SECTION
-========================================================= */
 
 .logo {
-  height: 82px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  overflow: hidden;
-  text-decoration: none;
+  width: fit-content;
 }
-
-/* =========================================================
-   LOGO IMAGE
-========================================================= */
 
 .logo-image {
-  width: 100%;
-  max-width: 300px;
-  height: 74px;
-  object-fit: contain;
-  object-position: left center;
+  width: clamp(205px, 18vw, 290px);
+  height: auto;
   display: block;
+  object-fit: contain;
 }
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
 
 .nav-links {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: clamp(16px, 2vw, 34px);
-}
-
-/* =========================================================
-   NAVIGATION LINKS
-========================================================= */
-
-.nav-links a {
-  color: #111111;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 900;
-  transition: 0.3s ease;
+  justify-content: center;
+  gap: clamp(12px, 1.55vw, 25px);
+  flex-wrap: nowrap;
   white-space: nowrap;
 }
 
-/* =========================================================
-   NAVIGATION LINK HOVER
-========================================================= */
-
-.nav-links a:hover {
-  color: #d99a00;
+.nav-links a,
+.nav-button {
+  border: 0;
+  background: transparent;
+  color: #111218;
+  font-size: clamp(13px, 1vw, 15px);
+  font-weight: 900;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
-/* =========================================================
-   HEADER ICONS
-========================================================= */
+.nav-links a:hover,
+.nav-button:hover {
+  color: #d99a00;
+  transform: translateY(-1px);
+}
+
+.admin-nav-link {
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: #111218 !important;
+  color: #ffffff !important;
+}
+
+.admin-nav-link:hover {
+  color: #ffffff !important;
+  background: #d99a00 !important;
+}
 
 .header-icons {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 13px;
+  gap: 14px;
 }
 
-/* =========================================================
-   ICON CIRCLE
-========================================================= */
-
 .icon-circle {
-  width: 50px;
-  height: 50px;
+  width: clamp(46px, 4vw, 54px);
+  height: clamp(46px, 4vw, 54px);
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  text-decoration: none;
-  font-size: 21px;
   font-weight: 900;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-  transition: 0.3s ease;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
-/* =========================================================
-   ICON HOVER
-========================================================= */
 
 .icon-circle:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
 }
 
-/* =========================================================
-   ICON COLORS
-========================================================= */
-
 .phone-icon {
-  background: #d99a00;
+  background: #e0a400;
 }
 
 .message-icon {
-  background: #25d366;
+  background: #28d267;
 }
 
 .facebook-icon {
   background: #1877f2;
+  font-size: 24px;
 }
 
 /* =========================================================
    HERO SECTION
+   Update:
+   Background now becomes brighter during the 3D transition,
+   then returns to the darker normal state.
 ========================================================= */
 
 .hero-section {
   width: 100%;
-  min-height: calc(100vh - 96px);
+  min-height: calc(100svh - 96px);
   position: relative;
+  overflow: hidden;
+  background: #08090d;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  padding: clamp(72px, 8vw, 105px) 24px clamp(42px, 5vw, 72px);
+  perspective: 1200px;
 }
-
-/* =========================================================
-   HERO BACKGROUND
-========================================================= */
 
 .hero-background {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
+  transform-style: preserve-3d;
+  overflow: hidden;
 }
-
-/* =========================================================
-   HERO BACKGROUND IMAGE
-========================================================= */
 
 .hero-background img {
   width: 100%;
@@ -246,11 +220,10 @@ body {
   object-fit: cover;
   object-position: center;
   display: block;
+  transform-origin: center center;
+  animation: gabniksPoster3D 14s ease-in-out infinite;
+  will-change: transform, filter;
 }
-
-/* =========================================================
-   HERO OVERLAY
-========================================================= */
 
 .hero-overlay {
   position: absolute;
@@ -258,604 +231,502 @@ body {
   background:
     linear-gradient(
       90deg,
-      rgba(8, 8, 10, 0.9),
-      rgba(8, 8, 10, 0.7),
-      rgba(8, 8, 10, 0.45)
+      rgba(0, 0, 0, 0.82),
+      rgba(0, 0, 0, 0.56),
+      rgba(0, 0, 0, 0.78)
     ),
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.12), #050609 94%);
+
+  /* This dims less during the transition so the poster becomes more visible. */
+  animation: heroOverlayBrightness 14s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* =========================================================
+   SUBTLE 3D HERO POSTER ANIMATION
+   Purpose:
+   Makes the hero image brighten, zoom, shift slightly,
+   then return to its normal darker premium state.
+========================================================= */
+
+@keyframes gabniksPoster3D {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+    filter: brightness(0.82) contrast(1.04) saturate(1);
+  }
+
+  25% {
+    transform: scale(1.055) translate3d(-12px, -5px, 36px) rotateX(1.2deg)
+      rotateY(-2deg);
+    filter: brightness(1.22) contrast(1.13) saturate(1.15);
+  }
+
+  50% {
+    transform: scale(1.075) translate3d(10px, 4px, 46px) rotateX(-1deg)
+      rotateY(1.7deg);
+    filter: brightness(1.3) contrast(1.16) saturate(1.18);
+  }
+
+  75% {
+    transform: scale(1.035) translate3d(-4px, 2px, 24px) rotateX(0.5deg)
+      rotateY(-0.8deg);
+    filter: brightness(1.05) contrast(1.1) saturate(1.08);
+  }
+
+  100% {
+    transform: scale(1) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+    filter: brightness(0.82) contrast(1.04) saturate(1);
+  }
+}
+
+/* The overlay fades slightly so the image is brighter during motion. */
+@keyframes heroOverlayBrightness {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0.78;
+  }
+
+  50% {
+    opacity: 0.68;
+  }
+
+  75% {
+    opacity: 0.84;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Keeps the site accessible for users who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-background img,
+  .hero-overlay {
+    animation: none;
+  }
+
+  .hero-background img {
+    transform: none;
+  }
+}
+
+/* =========================================================
+   HERO USER CARD
+========================================================= */
+
+.hero-user-strip {
+  position: absolute;
+  top: clamp(18px, 2.2vw, 28px);
+  left: clamp(22px, 4vw, 70px);
+  z-index: 4;
+  width: auto;
+  max-width: 315px;
+}
+
+.hero-user-card {
+  min-width: 230px;
+  max-width: 315px;
+  padding: 14px 17px;
+  border-radius: 17px;
+  background:
     linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.18),
-      rgba(0, 0, 0, 0.72)
+      135deg,
+      rgba(16, 17, 23, 0.98),
+      rgba(39, 40, 48, 0.94)
     );
-}
-
-/* =========================================================
-   HERO CONTENT
-========================================================= */
-
-.hero-content {
-  width: 100%;
-  max-width: none;
-  position: relative;
-  z-index: 2;
-  padding: clamp(55px, 8vw, 95px) clamp(24px, 7vw, 100px);
-  color: #ffffff;
-  text-align: center;
-}
-
-/* =========================================================
-   HERO LABEL
-========================================================= */
-
-.hero-label {
-  color: #f6c13a;
-  font-size: clamp(13px, 1.4vw, 17px);
-  font-weight: 900;
-  letter-spacing: 0.6px;
-  margin-bottom: 16px;
-}
-
-/* =========================================================
-   HERO TITLE
-========================================================= */
-
-.hero-content h1 {
-  max-width: 820px;
-  margin: 0 auto 24px;
-  font-family: "Oswald", Arial, sans-serif;
-  font-size: clamp(44px, 7vw, 92px);
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -1px;
-}
-
-/* =========================================================
-   HERO TEXT
-========================================================= */
-
-.hero-text {
-  max-width: 780px;
-  margin: 0 auto 34px;
-  color: #f1f1f1;
-  font-size: clamp(16px, 1.6vw, 20px);
-  line-height: 1.65;
-  font-weight: 500;
-}
-
-/* =========================================================
-   HERO BUTTONS
-========================================================= */
-
-.hero-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-/* =========================================================
-   BUTTON BASE
-========================================================= */
-
-.primary-button,
-.secondary-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 165px;
-  padding: 16px 26px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 900;
-  transition: 0.3s ease;
-}
-
-/* =========================================================
-   PRIMARY BUTTON
-========================================================= */
-
-.primary-button {
-  background: #d99a00;
-  color: #111111;
-  box-shadow: 0 14px 34px rgba(217, 154, 0, 0.35);
-}
-
-/* =========================================================
-   SECONDARY BUTTON
-========================================================= */
-
-.secondary-button {
-  background: #ffffff;
-  color: #111111;
-}
-
-/* =========================================================
-   BUTTON HOVER
-========================================================= */
-
-.primary-button:hover,
-.secondary-button:hover {
-  transform: translateY(-4px);
-}
-
-/* =========================================================
-   GENERAL SECTION
-========================================================= */
-
-.section {
-  width: 100%;
-  padding: 95px 24px;
-  background: #f5f5f5;
-}
-
-/* =========================================================
-   SECTION CONTAINER
-========================================================= */
-
-.section-container {
-  width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
-}
-
-/* =========================================================
-   SECTION LABEL
-========================================================= */
-
-.section-label {
-  text-align: center;
-  color: #d99a00;
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-/* =========================================================
-   SECTION TITLE
-========================================================= */
-
-.section-title {
-  text-align: center;
-  color: #d99a00;
-  font-family: "Oswald", Arial, sans-serif;
-  font-size: clamp(44px, 6vw, 82px);
-  line-height: 1;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-
-/* =========================================================
-   SECTION DESCRIPTION
-========================================================= */
-
-.section-description {
-  max-width: 850px;
-  margin: 0 auto 44px;
-  text-align: center;
-  color: #555555;
-  font-size: 18px;
-  line-height: 1.7;
-  font-weight: 500;
-}
-
-/* =========================================================
-   SERVICES SECTION
-========================================================= */
-
-.services-section {
-  background: #111218;
-  color: #ffffff;
-}
-
-/* =========================================================
-   SERVICES SECTION DESCRIPTION
-========================================================= */
-
-.services-section .section-description {
-  color: #bfc1cb;
-}
-
-/* =========================================================
-   SERVICES GRID
-========================================================= */
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 26px;
-}
-
-/* =========================================================
-   SERVICE CARD
-========================================================= */
-
-.service-card {
-  min-height: 255px;
-  background: #ffffff;
-  color: #111111;
-  border: none;
-  border-radius: 24px;
-  padding: 36px 24px;
-  font-family: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
-  transition: 0.3s ease;
-}
-
-/* =========================================================
-   SERVICE CARD HOVER
-========================================================= */
-
-.service-card:hover {
-  transform: translateY(-8px);
-}
-
-/* =========================================================
-   SERVICE ICON
-========================================================= */
-
-.service-icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: #fff0c8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 31px;
-  margin-bottom: 22px;
-}
-
-/* =========================================================
-   SERVICE TITLE
-========================================================= */
-
-.service-card h3 {
-  color: #111111;
-  font-family: "Oswald", Arial, sans-serif;
-  font-size: 28px;
-  line-height: 1.1;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-/* =========================================================
-   SERVICE TEXT
-========================================================= */
-
-.service-card p {
-  color: #555555;
-  font-size: 15.5px;
-  line-height: 1.55;
-  font-weight: 500;
-}
-
-/* =========================================================
-   ABOUT SECTION
-========================================================= */
-
-.about-section {
-  width: 100%;
-  background: #ffffff;
-  padding: 105px 24px;
-}
-
-/* =========================================================
-   ABOUT CONTAINER
-========================================================= */
-
-.about-container {
-  width: 100%;
-  max-width: 1120px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* =========================================================
-   ABOUT TITLE
-========================================================= */
-
-.about-title {
-  color: #d99a00;
-  font-family: "Oswald", Arial, sans-serif;
-  font-size: clamp(44px, 7vw, 88px);
-  line-height: 1.05;
-  font-weight: 700;
-  margin-bottom: 30px;
-}
-
-/* =========================================================
-   ABOUT TEXT
-========================================================= */
-
-.about-text {
-  max-width: 960px;
-  margin: 0 auto;
-  color: #4b4b4b;
-  font-size: 19px;
-  line-height: 1.85;
-  font-weight: 500;
-}
-
-/* =========================================================
-   ABOUT FEATURES
-========================================================= */
-
-.about-features {
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-}
-
-/* =========================================================
-   ABOUT FEATURE CARD
-========================================================= */
-
-.about-features div {
-  background: #f6f6f6;
-  border-radius: 18px;
-  padding: 22px 18px;
-  color: #1f1f1f;
-  font-size: 15px;
-  font-weight: 900;
-  line-height: 1.4;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.06);
-}
-
-/* =========================================================
-   FAQ SECTION
-========================================================= */
-
-.faq-section {
-  width: 100%;
-  background: #f4f4f4;
-  padding: 95px 24px;
-}
-
-/* =========================================================
-   FAQ GRID
-========================================================= */
-
-.faq-grid {
-  width: 100%;
-  max-width: 920px;
-  margin: 0 auto;
-  display: grid;
-  gap: 20px;
-}
-
-/* =========================================================
-   FAQ CARD
-========================================================= */
-
-.faq-card {
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 28px 32px;
+  border: 1px solid rgba(224, 164, 0, 0.66);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(12px);
   text-align: left;
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
 }
 
-/* =========================================================
-   FAQ QUESTION
-========================================================= */
-
-.faq-card h3 {
-  color: #111111;
-  font-size: 20px;
+.hero-user-card span {
+  display: block;
+  color: #f6c13a;
+  font-size: 10px;
   font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.hero-user-card strong {
+  display: block;
+  color: #ffffff;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 700;
+  line-height: 1.05;
   margin-bottom: 10px;
 }
 
-/* =========================================================
-   FAQ ANSWER
-========================================================= */
-
-.faq-card p {
-  color: #4d4d4d;
-  font-size: 16px;
-  line-height: 1.65;
-  font-weight: 500;
+.hero-user-card small {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #e0a400;
+  color: #101114;
+  padding: 7px 12px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
 }
 
-/* =========================================================
-   SERVICE AREA SECTION
-========================================================= */
-
-.service-area-section {
+.profile-edit-button {
   width: 100%;
-  background: #111218;
+  margin-top: 12px;
+  border: 1px solid rgba(224, 164, 0, 0.75);
+  border-radius: 999px;
+  background: rgba(224, 164, 0, 0.12);
   color: #ffffff;
-  padding: 95px 24px 40px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* =========================================================
-   SERVICE AREA DESCRIPTION
-========================================================= */
-
-.service-area-section .section-description {
-  color: #c8c9d0;
+.profile-edit-button:hover {
+  background: #e0a400;
+  color: #111218;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(224, 164, 0, 0.28);
 }
 
-/* =========================================================
-   SERVICE AREA ACTIONS
-========================================================= */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 980px);
+  margin: 0 auto;
+  text-align: center;
+  transform: translateY(8px);
+}
 
+.hero-label,
+.section-label {
+  margin: 0 0 14px;
+  color: #e0a400;
+  font-size: clamp(12px, 1.2vw, 15px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-content h1 {
+  margin: 0 auto 20px;
+  color: #ffffff;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(48px, 7.1vw, 86px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -1px;
+  text-transform: capitalize;
+  max-width: 920px;
+}
+
+.hero-text {
+  max-width: 820px;
+  margin: 0 auto 24px;
+  color: #ffffff;
+  font-size: clamp(16px, 1.7vw, 21px);
+  font-weight: 500;
+  line-height: 1.48;
+}
+
+.hero-buttons,
 .service-area-actions {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 34px;
 }
 
-/* =========================================================
-   SERVICE AREA BUTTON
-========================================================= */
+.hero-buttons-visible {
+  margin-top: 8px;
+}
 
-.service-area-button {
-  background: #d99a00;
-  color: #111111;
-  text-decoration: none;
+.primary-button,
+.secondary-button,
+.service-area-button,
+.full-submit-button {
+  min-width: 170px;
+  border: 0;
   border-radius: 999px;
-  padding: 15px 24px;
+  padding: 16px 26px;
   font-size: 16px;
   font-weight: 900;
-  box-shadow: 0 14px 32px rgba(217, 154, 0, 0.28);
-  transition: 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* =========================================================
-   WHATSAPP SERVICE AREA BUTTON
-========================================================= */
+.primary-button,
+.service-area-button,
+.full-submit-button {
+  background: #e0a400;
+  color: #101114;
+  box-shadow: 0 18px 42px rgba(224, 164, 0, 0.22);
+}
+
+.secondary-button {
+  background: #ffffff;
+  color: #101114;
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.service-area-button:hover,
+.full-submit-button:hover {
+  transform: translateY(-3px);
+}
 
 .service-area-button.whatsapp {
-  background: #25d366;
+  background: #28d267;
   color: #ffffff;
 }
 
 /* =========================================================
-   SERVICE AREA BUTTON HOVER
+   GENERAL SECTIONS
 ========================================================= */
 
-.service-area-button:hover {
-  transform: translateY(-4px);
+.section,
+.about-section,
+.faq-section,
+.service-area-section {
+  background: #0e1015;
+  color: #ffffff;
+  padding: clamp(72px, 8vw, 112px) 24px;
 }
 
-/* =========================================================
-   MAP WRAPPER
-========================================================= */
-
-.map-wrapper {
-  width: 100%;
-  max-width: 1240px;
+.section-container,
+.about-container {
+  width: min(100%, 1240px);
   margin: 0 auto;
-  border-radius: 26px;
-  overflow: hidden;
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
+  text-align: center;
+}
+
+.section-title,
+.about-title {
+  margin: 0 auto 18px;
+  color: #e0a400;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(48px, 6.7vw, 88px);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.section-description,
+.about-text {
+  max-width: 820px;
+  margin: 0 auto 42px;
+  color: #cfd2da;
+  font-size: clamp(17px, 1.7vw, 20px);
+  line-height: 1.6;
 }
 
 /* =========================================================
-   MAP IFRAME
+   SERVICE CARDS
 ========================================================= */
 
-.map-wrapper iframe {
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 36px;
+}
+
+.service-card {
+  min-height: 230px;
+  border: 0;
+  border-radius: 28px;
+  background: #ffffff;
+  color: #101114;
+  padding: 32px 22px;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 90px rgba(224, 164, 0, 0.18);
+}
+
+.service-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: rgba(224, 164, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+
+.service-card h3 {
+  margin: 0 0 12px;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 30px;
+  line-height: 1.02;
+}
+
+.service-card p {
+  margin: 0;
+  color: #555b66;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+.about-section {
+  background:
+    radial-gradient(circle at top left, rgba(224, 164, 0, 0.16), transparent 34%),
+    #0e1015;
+}
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.about-features div {
+  border-radius: 18px;
+  background: #ffffff;
+  color: #111218;
+  padding: 18px 16px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   FAQ
+========================================================= */
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 38px;
+}
+
+.faq-card {
+  border-radius: 28px;
+  background: #ffffff;
+  color: #111218;
+  padding: 32px;
+  text-align: left;
+}
+
+.faq-card h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.faq-card p {
+  margin: 0;
+  color: #555b66;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   MAP / CONTACT SECTION
+========================================================= */
+
+.service-area-section {
+  background: #0f1117;
+}
+
+.map-card {
+  width: min(100%, 1120px);
+  height: clamp(320px, 42vw, 500px);
+  margin: 44px auto 0;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(224, 164, 0, 0.28);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.38);
+  background: #171920;
+}
+
+.map-card iframe {
   width: 100%;
-  height: 500px;
-  border: none;
+  height: 100%;
+  border: 0;
   display: block;
 }
 
 /* =========================================================
-   FOOTER
+   FOOTER / FLOATING BUTTONS
 ========================================================= */
 
 .footer {
-  width: 100%;
-  background: #111218;
-  color: #bfc1cb;
+  background: #0e1015;
+  color: #cfd2da;
   text-align: center;
-  padding: 24px;
-  font-size: 15px;
-  font-weight: 500;
+  padding: 30px 20px;
 }
 
-/* =========================================================
-   FLOATING WHATSAPP BUTTON
-========================================================= */
-
-.floating-whatsapp {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 9999;
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  background: #25d366;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 28px;
-  box-shadow: 0 16px 36px rgba(37, 211, 102, 0.35);
-  transition: 0.3s ease;
+.footer p {
+  margin: 0;
 }
 
-/* =========================================================
-   FLOATING WHATSAPP HOVER
-========================================================= */
-
-.floating-whatsapp:hover {
-  transform: scale(1.08);
-}
-
-/* =========================================================
-   SECTION SCROLL POSITION FIX
-========================================================= */
-
-#top,
-#services,
-#about,
-#gallery,
-#faq,
-#contact {
-  scroll-margin-top: 110px;
-}
-
-/* =========================================================
-   BACK TO TOP BUTTON
-========================================================= */
-
+.floating-whatsapp,
 .back-to-top {
   position: fixed;
   right: 28px;
-  bottom: 102px;
-  z-index: 9999;
-  width: 52px;
-  height: 52px;
+  z-index: 30;
+  width: 58px;
+  height: 58px;
+  border: 0;
   border-radius: 50%;
-  background: #d99a00;
-  color: #111111;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  font-size: 28px;
-  font-weight: 900;
-  box-shadow: 0 16px 36px rgba(217, 154, 0, 0.35);
-  transition: 0.3s ease;
+  font-size: 24px;
+  color: #ffffff;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.25);
+}
+
+.floating-whatsapp {
+  bottom: 28px;
+  background: #28d267;
+}
+
+.back-to-top {
+  bottom: 100px;
+  background: #e0a400;
+  color: #111218;
 }
 
 /* =========================================================
-   BACK TO TOP HOVER
+   MODALS
 ========================================================= */
 
-.back-to-top:hover {
-  transform: translateY(-5px);
-  background: #f2b400;
-}
-
-/* =========================================================
-   BOOKING MODAL OVERLAY
-========================================================= */
-
-.booking-modal-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 100;
   background: rgba(0, 0, 0, 0.72);
   display: flex;
   align-items: center;
@@ -863,195 +734,846 @@ body {
   padding: 24px;
 }
 
-/* =========================================================
-   BOOKING MODAL
-========================================================= */
-
+.auth-modal,
 .booking-modal {
-  width: 100%;
-  max-width: 760px;
-  max-height: 92vh;
   position: relative;
-  background: #ffffff;
-  border-radius: 28px;
-  padding: 42px;
+  width: min(100%, 760px);
+  max-height: 92vh;
   overflow-y: auto;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+  border-radius: 28px;
+  background: #ffffff;
+  color: #111218;
+  padding: 42px;
+  box-shadow: 0 30px 110px rgba(0, 0, 0, 0.42);
 }
 
-/* =========================================================
-   BOOKING CLOSE BUTTON
-========================================================= */
+.small-auth-modal {
+  width: min(100%, 520px);
+}
 
-.booking-close-button {
+.auth-modal h2,
+.booking-modal h2 {
+  margin: 0 0 24px;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(48px, 6vw, 64px);
+  line-height: 0.95;
+}
+
+.modal-close-button {
   position: absolute;
   top: 18px;
-  right: 22px;
-  width: 42px;
-  height: 42px;
-  border: none;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border: 0;
   border-radius: 50%;
   background: #111218;
   color: #ffffff;
   font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-/* =========================================================
-   BOOKING LABEL
-========================================================= */
-
-.booking-label {
-  color: #d99a00;
-  font-size: 14px;
   font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
 }
 
-/* =========================================================
-   BOOKING TITLE
-========================================================= */
-
-.booking-modal h2 {
-  color: #111111;
-  font-family: "Oswald", Arial, sans-serif;
-  font-size: 46px;
-  line-height: 1;
-  font-weight: 700;
-  margin-bottom: 14px;
-}
-
-/* =========================================================
-   SELECTED SERVICE TEXT
-========================================================= */
-
-.booking-selected-service {
-  color: #444444;
-  font-size: 16px;
-  line-height: 1.5;
-  margin-bottom: 28px;
-}
-
-/* =========================================================
-   BOOKING FORM
-========================================================= */
-
+.auth-form,
 .booking-form {
-  display: grid;
-  gap: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* =========================================================
-   FORM ROW
-========================================================= */
-
-.form-row {
+.form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
 
-/* =========================================================
-   FORM LABEL
-========================================================= */
-
+.auth-form label,
 .booking-form label {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  color: #111111;
   font-size: 14px;
   font-weight: 900;
 }
 
-/* =========================================================
-   FORM INPUTS
-========================================================= */
-
+.auth-form input,
+.auth-form select,
 .booking-form input,
-.booking-form textarea {
+.booking-form select,
+.booking-form textarea,
+.admin-table input,
+.admin-table select,
+.admin-table textarea {
   width: 100%;
-  border: 1px solid #dddddd;
+  border: 1px solid #d8dbe2;
   border-radius: 14px;
+  background: #ffffff;
+  color: #111218;
   padding: 14px 16px;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
   font-size: 15px;
   outline: none;
-  background: #f8f8f8;
-  color: #111111;
 }
 
-/* =========================================================
-   FORM INPUT FOCUS
-========================================================= */
-
+.auth-form input:focus,
+.auth-form select:focus,
 .booking-form input:focus,
-.booking-form textarea:focus {
-  border-color: #d99a00;
-  background: #ffffff;
+.booking-form select:focus,
+.booking-form textarea:focus,
+.admin-table input:focus,
+.admin-table select:focus,
+.admin-table textarea:focus {
+  border-color: #e0a400;
+  box-shadow: 0 0 0 3px rgba(224, 164, 0, 0.16);
 }
 
-/* =========================================================
-   FORM TEXTAREA
-========================================================= */
-
-.booking-form textarea {
+.booking-form textarea,
+.admin-table textarea {
+  min-height: 90px;
   resize: vertical;
 }
 
-/* =========================================================
-   BOOKING SUBMIT BUTTON
-========================================================= */
+.form-message {
+  border-radius: 14px;
+  background: #fff4cf;
+  border: 1px solid rgba(224, 164, 0, 0.42);
+  color: #111218;
+  padding: 14px 16px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
 
-.booking-submit-button {
-  width: 100%;
-  border: none;
-  border-radius: 999px;
-  background: #d99a00;
-  color: #111111;
-  padding: 16px 24px;
-  font-size: 16px;
+.modal-switch-button {
+  border: 0;
+  background: transparent;
+  color: #d99a00;
   font-weight: 900;
+  font-size: 15px;
+}
+
+.selected-service-text {
+  color: #555b66;
+  margin: -12px 0 24px;
+  font-size: 18px;
+}
+
+.booking-success-card {
+  border-radius: 22px;
+  background: #fff8e4;
+  border: 1px solid rgba(224, 164, 0, 0.35);
+  padding: 24px;
+}
+
+.booking-success-card h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+}
+
+.booking-success-card p {
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   PROFILE EDIT MODAL
+========================================================= */
+
+.profile-edit-modal {
+  background: linear-gradient(180deg, #ffffff 0%, #fffaf0 100%);
+  border: 1px solid rgba(224, 164, 0, 0.22);
+}
+
+.profile-edit-description {
+  margin: -12px 0 24px;
+  color: #555b66;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.profile-email-note {
+  border-radius: 16px;
+  background: #f7f8fb;
+  border: 1px solid #e3e6ec;
+  color: #3c414c;
+  padding: 15px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.profile-email-note strong {
+  color: #111218;
+}
+
+/* =========================================================
+   ADMIN DASHBOARD
+========================================================= */
+
+.admin-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(224, 164, 0, 0.16), transparent 26%),
+    linear-gradient(135deg, #090a0f 0%, #11131a 45%, #090a0f 100%);
+  color: #111218;
+}
+
+.admin-header {
+  min-height: 92px;
+  padding: 18px clamp(24px, 4vw, 64px);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+.admin-header h1 {
+  margin: 0;
+  color: #111218;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1;
+}
+
+.developer-credit {
+  margin: 6px 0 0;
+  color: #5b606b;
+  font-weight: 800;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-header-actions a,
+.admin-header-actions button {
+  border: 0;
+  border-radius: 999px;
+  background: #e0a400;
+  color: #111218;
+  padding: 14px 20px;
+  font-weight: 900;
+}
+
+.admin-header-actions .logout-button {
+  background: #111218;
+  color: #ffffff;
+}
+
+.admin-container {
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  padding: clamp(42px, 6vw, 70px) 20px;
+}
+
+.admin-hero-grid {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr;
+  gap: 28px;
+  margin-bottom: 30px;
+}
+
+.admin-hero-card,
+.admin-profile-card,
+.admin-stat-card,
+.admin-panel {
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+}
+
+.admin-hero-card {
+  padding: clamp(34px, 5vw, 54px);
+  background:
+    linear-gradient(135deg, rgba(38, 39, 45, 0.96), rgba(16, 17, 23, 0.98));
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-hero-card h2 {
+  margin: 0 0 16px;
+  color: #ffffff;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(56px, 7vw, 86px);
+  line-height: 0.95;
+}
+
+.admin-hero-card p:not(.section-label) {
+  max-width: 700px;
+  color: #d9dce3;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.admin-profile-card {
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admin-profile-card h3 {
+  margin: 0 0 8px;
+  color: #111218;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 34px;
+}
+
+.admin-profile-card p {
+  margin: 0 0 18px;
+  color: #555b66;
+  font-weight: 800;
+}
+
+.developer-badge,
+.customer-role-badge {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  background: #e0a400;
+  color: #111218;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.customer-role-badge.customer {
+  background: #e9eef7;
+  color: #344052;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin: 30px 0;
+}
+
+.admin-stat-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f6fa 100%);
+  color: #111218;
+  text-align: left;
+  padding: 28px;
+  min-height: 164px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  transition: transform 0.2s ease, background 0.2s ease, border 0.2s ease;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(224, 164, 0, 0.55);
+}
+
+.admin-stat-card.active {
+  background: linear-gradient(135deg, #e0a400 0%, #f7c843 100%);
+  color: #111218;
+  border-color: #e0a400;
+}
+
+.admin-stat-card span {
+  display: block;
+  color: #5f6572;
+  font-weight: 900;
+  margin-bottom: 14px;
+}
+
+.admin-stat-card.active span {
+  color: #111218;
+}
+
+.admin-stat-card strong {
+  display: block;
+  color: #111218;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 0.9;
+  margin-bottom: 14px;
+}
+
+.admin-stat-card small {
+  color: #6a6f7b;
+  font-weight: 900;
+}
+
+.admin-stat-card.active small {
+  color: #111218;
+}
+
+.admin-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 24px;
+}
+
+.admin-filter-tabs button {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: #202229;
+  color: #ffffff;
+  padding: 14px 22px;
+  font-weight: 900;
+}
+
+.admin-filter-tabs button.active {
+  background: #e0a400;
+  color: #111218;
+  border-color: #e0a400;
+}
+
+.admin-message {
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin: 22px 0;
+  font-weight: 900;
+}
+
+.admin-message.success {
+  background: #e5ffef;
+  color: #0f6a36;
+  border: 1px solid rgba(15, 106, 54, 0.22);
+}
+
+.admin-message.warning {
+  background: #fff4cf;
+  color: #111218;
+  border: 1px solid rgba(224, 164, 0, 0.42);
+}
+
+.admin-panel {
+  padding: clamp(24px, 4vw, 34px);
+  margin-top: 28px;
+}
+
+.admin-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-panel-header h2 {
+  margin: 0;
+  color: #111218;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(48px, 6vw, 72px);
+  line-height: 0.95;
+}
+
+.admin-count-badge {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #111218;
+  color: #ffffff;
+  padding: 14px 20px;
+  font-weight: 900;
+}
+
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar button {
+  border: 0;
+  border-radius: 999px;
+  background: #202229;
+  color: #ffffff;
+  padding: 12px 18px;
+  font-weight: 900;
+}
+
+.admin-toolbar .danger-button {
+  background: #c5221f;
+  color: #ffffff;
+}
+
+.admin-toolbar .danger-button:hover {
+  background: #a91512;
+}
+
+.admin-note {
+  margin: -4px 0 18px;
+  color: #646b78;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.schedule-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+  color: #555b66;
+  font-weight: 800;
+}
+
+.schedule-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend-dot {
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.legend-dot.red {
+  background: #d93025;
+}
+
+.legend-dot.amber {
+  background: #d99a00;
+}
+
+.legend-dot.green {
+  background: #188038;
+}
+
+.legend-dot.gray {
+  background: #8b909b;
+}
+
+.admin-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 20px;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 1280px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th {
+  background: #111218;
+  color: #ffffff;
+  padding: 18px 16px;
+  text-align: left;
+  font-weight: 900;
+}
+
+.admin-table th:first-child {
+  border-top-left-radius: 18px;
+}
+
+.admin-table th:last-child {
+  border-top-right-radius: 18px;
+}
+
+.admin-table td {
+  padding: 18px 16px;
+  border-bottom: 1px solid #e6e8ed;
+  vertical-align: top;
+  color: #333844;
+  font-weight: 700;
+}
+
+.admin-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #e0a400;
   cursor: pointer;
-  box-shadow: 0 14px 34px rgba(217, 154, 0, 0.35);
-  transition: 0.3s ease;
+}
+
+.admin-customer-name {
+  display: block;
+  color: #111218;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.admin-customer-meta {
+  display: block;
+  color: #6c707a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-edit-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-save-button,
+.admin-edit-button,
+.admin-cancel-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 900;
+}
+
+.admin-save-button,
+.admin-edit-button {
+  background: #e0a400;
+  color: #111218;
+}
+
+.admin-cancel-button {
+  background: #111218;
+  color: #ffffff;
+}
+
+.status-badge,
+.payment-badge,
+.urgency-badge,
+.schedule-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.status-new {
+  background: #e8f0fe;
+  color: #174ea6;
+}
+
+.status-ongoing {
+  background: #fff1cc;
+  color: #8a5b00;
+}
+
+.status-finished {
+  background: #e6f4ea;
+  color: #137333;
+}
+
+.status-cancelled {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+.payment-unpaid {
+  background: #e8f0fe;
+  color: #0b5394;
+}
+
+.payment-deposit {
+  background: #e3f2fd;
+  color: #075a97;
+}
+
+.payment-paid {
+  background: #e6f4ea;
+  color: #137333;
+}
+
+.payment-refunded {
+  background: #f3e8fd;
+  color: #6a1b9a;
+}
+
+.payment-cell {
+  display: grid;
+  gap: 8px;
+}
+
+.payment-cell small {
+  color: #555b66;
+  font-weight: 800;
+}
+
+.urgency-flexible {
+  background: #fff1cc;
+  color: #8a5b00;
+}
+
+.urgency-today,
+.urgency-urgent {
+  background: #ffe8cc;
+  color: #9c4f00;
+}
+
+.urgency-emergency {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+.schedule-cell {
+  display: grid;
+  gap: 8px;
+}
+
+.schedule-danger {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+.schedule-warning {
+  background: #fff1cc;
+  color: #8a5b00;
+}
+
+.schedule-safe {
+  background: #e6f4ea;
+  color: #137333;
+}
+
+.schedule-empty {
+  background: #edf0f5;
+  color: #555b66;
+}
+
+.access-panel {
+  max-width: 650px;
+  margin: 80px auto;
+}
+
+.admin-footer {
+  color: #cfd2da;
+  text-align: center;
+  padding: 28px 20px 42px;
+}
+
+.admin-footer p {
+  margin: 0;
+  font-weight: 700;
 }
 
 /* =========================================================
-   BOOKING SUBMIT BUTTON HOVER
+   LAPTOP RESPONSIVE FIX
 ========================================================= */
 
-.booking-submit-button:hover {
-  transform: translateY(-3px);
-  background: #f2b400;
+@media (max-width: 1280px) {
+  .header-container {
+    grid-template-columns: 250px minmax(390px, 1fr) auto;
+    padding-inline: 42px;
+  }
+
+  .logo-image {
+    width: 240px;
+  }
+
+  .nav-links {
+    gap: 15px;
+  }
+
+  .header-icons {
+    gap: 12px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(48px, 6.6vw, 78px);
+  }
+
+  .hero-text {
+    max-width: 760px;
+  }
+
+  .hero-user-strip {
+    left: 42px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .header-container {
+    grid-template-columns: 220px 1fr auto;
+    padding-inline: 28px;
+    gap: 16px;
+  }
+
+  .logo-image {
+    width: 215px;
+  }
+
+  .nav-links {
+    gap: 11px;
+  }
+
+  .nav-links a,
+  .nav-button {
+    font-size: 13px;
+  }
+
+  .admin-nav-link {
+    padding: 11px 15px;
+  }
+
+  .icon-circle {
+    width: 46px;
+    height: 46px;
+  }
+
+  .hero-section {
+    min-height: calc(100svh - 96px);
+    padding-top: 82px;
+    padding-bottom: 44px;
+  }
+
+  .hero-user-card {
+    min-width: 220px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(46px, 6.5vw, 72px);
+  }
+
+  .hero-text {
+    font-size: 17px;
+    max-width: 720px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    padding: 15px 24px;
+  }
 }
 
 /* =========================================================
-   TABLET RESPONSIVE
+   TABLET RESPONSIVE DESIGN
 ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 980px) {
+  .header {
+    min-height: auto;
+  }
+
   .header-container {
     grid-template-columns: 1fr;
-    padding-top: 18px;
-    padding-bottom: 18px;
-    gap: 20px;
+    justify-items: center;
+    gap: 16px;
+    padding: 16px 22px 20px;
   }
 
   .logo {
     justify-content: center;
-    height: auto;
   }
 
   .logo-image {
-    max-width: 300px;
-    height: auto;
+    width: min(280px, 80vw);
   }
 
   .nav-links {
     flex-wrap: wrap;
+    gap: 14px 18px;
   }
 
   .header-icons {
@@ -1059,230 +1581,164 @@ body {
   }
 
   .hero-section {
-    min-height: 720px;
+    min-height: auto;
+    padding-top: 185px;
+    padding-bottom: 80px;
+  }
+
+  .hero-user-strip {
+    top: 22px;
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+
+  .hero-user-card {
+    width: fit-content;
+    min-width: 230px;
   }
 
   .services-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
   }
 
   .about-features {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
 /* =========================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE DESIGN
 ========================================================= */
 
-@media (max-width: 650px) {
-  .header-container {
-    min-height: auto;
-    padding: 14px 16px;
-  }
-
-  .logo-image {
-    max-width: 240px;
-  }
-
-  .nav-links {
-    gap: 14px;
-  }
-
-  .nav-links a {
-    font-size: 14px;
-  }
-
-  .icon-circle {
-    width: 46px;
-    height: 46px;
-    font-size: 19px;
+@media (max-width: 700px) {
+  .form-grid,
+  .services-grid,
+  .about-features,
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
   }
 
   .hero-section {
-    min-height: calc(100vh - 190px);
-  }
-
-  .hero-content {
-    padding: 60px 20px;
+    padding: 150px 18px 72px;
   }
 
   .hero-content h1 {
-    font-size: clamp(42px, 13vw, 64px);
+    font-size: clamp(42px, 15vw, 62px);
   }
 
   .hero-text {
     font-size: 16px;
   }
 
+  .auth-modal,
+  .booking-modal {
+    padding: 34px 22px;
+  }
+
+  .hero-buttons,
+  .service-area-actions {
+    flex-direction: column;
+  }
+
   .primary-button,
-  .secondary-button {
+  .secondary-button,
+  .service-area-button,
+  .full-submit-button {
     width: 100%;
   }
 
-  .section,
-  .about-section,
-  .faq-section,
-  .service-area-section {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-
-  .services-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .service-card {
-    min-height: 230px;
-  }
-
-  .about-features {
-    grid-template-columns: 1fr;
-  }
-
-  .faq-card {
-    padding: 24px 22px;
-  }
-
-  .map-wrapper iframe {
-    height: 360px;
-  }
-
-  .floating-whatsapp {
+  .floating-whatsapp,
+  .back-to-top {
+    right: 18px;
     width: 54px;
     height: 54px;
-    right: 18px;
-    bottom: 18px;
-    font-size: 24px;
   }
 
-  .back-to-top {
-    width: 48px;
-    height: 48px;
-    right: 18px;
-    bottom: 84px;
-    font-size: 24px;
+  .admin-header-actions {
+    flex-wrap: wrap;
   }
 
-  .booking-modal {
-    padding: 34px 22px;
-    border-radius: 22px;
+  .admin-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  .booking-modal h2 {
-    font-size: 38px;
+  .admin-table {
+    min-width: 1180px;
+  }
+}
+
+@media (max-width: 520px) {
+  .header-container {
+    padding-inline: 16px;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
+  .nav-links {
+    gap: 12px;
   }
 
-  /* =========================================================
-   FORM SELECT FIELD
-========================================================= */
+  .hero-user-strip {
+    position: absolute;
+    top: 18px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
 
-.booking-form select {
-  width: 100%;
+  .hero-user-card {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+  }
 
-  border: 1px solid #dddddd;
-  border-radius: 14px;
+  .hero-user-card small {
+    margin: 0 auto;
+  }
 
-  padding: 14px 16px;
+  .profile-edit-button {
+    max-width: 220px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-  font-family: "Inter", Arial, Helvetica, sans-serif;
-  font-size: 15px;
+  .profile-edit-description,
+  .profile-email-note {
+    text-align: left;
+  }
 
-  outline: none;
+  .hero-section {
+    padding-top: 190px;
+  }
 
-  background: #f8f8f8;
-  color: #111111;
-}
+  .section-title,
+  .about-title {
+    font-size: clamp(44px, 14vw, 64px);
+  }
 
-/* =========================================================
-   FORM SELECT FOCUS
-========================================================= */
+  .admin-header h1 {
+    font-size: 34px;
+  }
 
-.booking-form select:focus {
-  border-color: #d99a00;
-  background: #ffffff;
-}
-
-/* =========================================================
-   FORM SUCCESS MESSAGE
-========================================================= */
-
-.form-success-message {
-  background: #f3fff7;
-
-  border: 1px solid rgba(37, 211, 102, 0.35);
-  border-radius: 22px;
-
-  padding: 24px;
-
-  color: #111111;
-}
-
-/* =========================================================
-   FORM SUCCESS TITLE
-========================================================= */
-
-.form-success-message h3 {
-  color: #128c3f;
-
-  font-size: 24px;
-  font-weight: 900;
-
-  margin-bottom: 12px;
-}
-
-/* =========================================================
-   FORM SUCCESS TEXT
-========================================================= */
-
-.form-success-message p {
-  color: #333333;
-
-  font-size: 16px;
-  line-height: 1.6;
-
-  margin-bottom: 16px;
-}
-
-/* =========================================================
-   FORM SUCCESS LINK
-========================================================= */
-
-.form-success-message a {
-  color: #128c3f;
-  font-weight: 900;
-}
-
-/* =========================================================
-   FORM ERROR MESSAGE
-========================================================= */
-
-.form-error-message {
-  background: #fff3f3;
-
-  border: 1px solid rgba(220, 53, 69, 0.35);
-  border-radius: 14px;
-
-  padding: 14px 16px;
-
-  color: #b00020;
-
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.5;
-}
-
-/* =========================================================
-   DISABLED SUBMIT BUTTON
-========================================================= */
-
-.booking-submit-button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  transform: none;
-}
+  .admin-hero-card h2,
+  .admin-panel-header h2 {
+    font-size: 48px;
+  }
 }
