@@ -38,6 +38,21 @@ const FACEBOOK_LINK = "#";
 const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_URL || "";
 const LIVE_SITE_URL = "https://gabniksmotors.com";
 
+// =========================================================
+// ROLE-BASED INACTIVITY SESSION SECURITY
+//
+// Customer accounts: 30 minutes of inactivity.
+// Admin/developer accounts: 15 minutes of inactivity.
+// Warning appears during the final 60 seconds.
+// =========================================================
+const CUSTOMER_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+const PRIVILEGED_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
+const SESSION_WARNING_MS = 60 * 1000;
+
+const LAST_ACTIVITY_STORAGE_KEY = "gabniks-last-user-activity";
+const LOGOUT_STORAGE_KEY = "gabniks-session-logout";
+const SESSION_CONTINUE_STORAGE_KEY = "gabniks-session-continue";
+
 const GOOGLE_MAP_EMBED_URL =
   "https://www.google.com/maps?q=Atlanta,%20GA,%20USA&output=embed";
 
@@ -336,8 +351,19 @@ function App() {
   const customerPanelRef = useRef(null);
   const adminSearchInputRef = useRef(null);
 
+  // Session-security refs do not trigger a page re-render on every activity event.
+  const lastActivityRef = useRef(Date.now());
+  const activityThrottleRef = useRef(0);
+  const automaticLogoutRunningRef = useRef(false);
+  const sessionWarningActiveRef = useRef(false);
+
   const [session, setSession] = useState(null);
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
+
+  // Inactivity warning and automatic-logout state.
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
+  const [sessionSecondsRemaining, setSessionSecondsRemaining] = useState(60);
+  const [sessionNotice, setSessionNotice] = useState("");
 
   const [activeModal, setActiveModal] = useState(null);
   const [selectedService, setSelectedService] = useState("");
@@ -444,24 +470,257 @@ function App() {
   const canAccessAdmin = isDeveloper || isBusinessAdmin;
   const isAdminRoute = hashRoute === "#admin";
 
+  const currentIdleTimeoutMs = canAccessAdmin
+    ? PRIVILEGED_IDLE_TIMEOUT_MS
+    : CUSTOMER_IDLE_TIMEOUT_MS;
+
+  // Removes protected information immediately when a session ends.
+  const clearPrivateApplicationState = () => {
+    setCurrentUserProfile(null);
+    setProfiles([]);
+    setServiceRequests([]);
+    setSelectedRequestIds([]);
+    setSelectedProfileIds([]);
+    setEditingRequestId(null);
+    setEditForm({});
+    setShowHeroWelcome(false);
+    sessionWarningActiveRef.current = false;
+    setShowSessionWarning(false);
+    setActiveModal(null);
+  };
+
+  // Records ordinary activity only before the warning modal appears.
+  // Once the warning is visible, mouse movement, touch, scrolling, and key presses
+  // cannot extend the session. The user must explicitly click Stay Signed In.
+  const recordUserActivity = () => {
+    if (!session || sessionWarningActiveRef.current) return;
+
+    const now = Date.now();
+
+    if (now - activityThrottleRef.current < 1000) return;
+
+    activityThrottleRef.current = now;
+    lastActivityRef.current = now;
+    localStorage.setItem(LAST_ACTIVITY_STORAGE_KEY, String(now));
+
+    setSessionSecondsRemaining(Math.ceil(SESSION_WARNING_MS / 1000));
+  };
+
+  // Secure automatic logout for the current browser session.
+  const handleAutomaticLogout = async () => {
+    if (automaticLogoutRunningRef.current) return;
+
+    automaticLogoutRunningRef.current = true;
+
+    try {
+      localStorage.setItem(LOGOUT_STORAGE_KEY, String(Date.now()));
+
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+
+      if (error) {
+        console.error("Automatic logout error:", error);
+      }
+    } finally {
+      clearPrivateApplicationState();
+      setSession(null);
+      setSessionNotice(
+        "You were logged out because your session was inactive. Please log in again."
+      );
+      window.location.hash = "";
+      automaticLogoutRunningRef.current = false;
+    }
+  };
+
+  const handleStaySignedIn = () => {
+    const now = Date.now();
+
+    sessionWarningActiveRef.current = false;
+    lastActivityRef.current = now;
+    activityThrottleRef.current = now;
+
+    localStorage.setItem(LAST_ACTIVITY_STORAGE_KEY, String(now));
+    localStorage.setItem(SESSION_CONTINUE_STORAGE_KEY, String(now));
+
+    setShowSessionWarning(false);
+    setSessionSecondsRemaining(Math.ceil(SESSION_WARNING_MS / 1000));
+  };
+
+  const handleSessionWarningLogout = async () => {
+    sessionWarningActiveRef.current = false;
+    setShowSessionWarning(false);
+
+    try {
+      localStorage.setItem(LOGOUT_STORAGE_KEY, String(Date.now()));
+      await supabase.auth.signOut({ scope: "local" });
+    } finally {
+      clearPrivateApplicationState();
+      setSession(null);
+      setSessionNotice("");
+      window.location.hash = "";
+    }
+  };
+
+  // Loads the stored Supabase session and listens for auth changes.
   useEffect(() => {
     const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session || null);
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Session loading error:", error);
+        setSession(null);
+        return;
+      }
+
+      const existingSession = data.session || null;
+      setSession(existingSession);
+
+      if (existingSession) {
+        const storedActivity = Number(
+          localStorage.getItem(LAST_ACTIVITY_STORAGE_KEY)
+        );
+
+        const validStoredActivity =
+          Number.isFinite(storedActivity) && storedActivity > 0
+            ? storedActivity
+            : Date.now();
+
+        lastActivityRef.current = validStoredActivity;
+        localStorage.setItem(
+          LAST_ACTIVITY_STORAGE_KEY,
+          String(validStoredActivity)
+        );
+      }
     };
 
     loadSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession || null);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === "SIGNED_OUT") {
+        setSession(null);
+        clearPrivateApplicationState();
+        window.location.hash = "";
+        return;
       }
-    );
+
+      setSession(newSession || null);
+
+      if (event === "SIGNED_IN" && newSession) {
+        const now = Date.now();
+        lastActivityRef.current = now;
+        localStorage.setItem(LAST_ACTIVITY_STORAGE_KEY, String(now));
+        setSessionNotice("");
+        sessionWarningActiveRef.current = false;
+        setShowSessionWarning(false);
+      }
+    });
 
     return () => {
-      listener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
+
+  // Watches meaningful user activity while a session is active.
+  useEffect(() => {
+    if (!session) return undefined;
+
+    const activityEvents = [
+      "mousedown",
+      "mousemove",
+      "keydown",
+      "scroll",
+      "touchstart",
+      "pointerdown",
+    ];
+
+    const activityHandler = () => recordUserActivity();
+
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, activityHandler, { passive: true });
+    });
+
+    recordUserActivity();
+
+    return () => {
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, activityHandler);
+      });
+    };
+  }, [session]);
+
+  // Checks inactivity once per second and opens the final-minute warning.
+  useEffect(() => {
+    if (!session) {
+      setShowSessionWarning(false);
+      return undefined;
+    }
+
+    const checkInactivity = () => {
+      const elapsed = Date.now() - lastActivityRef.current;
+      const remaining = currentIdleTimeoutMs - elapsed;
+
+      if (remaining <= 0) {
+        handleAutomaticLogout();
+        return;
+      }
+
+      if (remaining <= SESSION_WARNING_MS) {
+        sessionWarningActiveRef.current = true;
+        setShowSessionWarning(true);
+        setSessionSecondsRemaining(Math.max(1, Math.ceil(remaining / 1000)));
+      } else if (!sessionWarningActiveRef.current) {
+        setShowSessionWarning(false);
+      }
+    };
+
+    checkInactivity();
+    const intervalId = window.setInterval(checkInactivity, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [session, currentIdleTimeoutMs]);
+
+  // Synchronizes activity and logout across tabs of the same browser.
+  useEffect(() => {
+    const handleStorageChange = async (event) => {
+      if (event.key === LAST_ACTIVITY_STORAGE_KEY && event.newValue) {
+        const synchronizedActivity = Number(event.newValue);
+
+        if (
+          !sessionWarningActiveRef.current &&
+          Number.isFinite(synchronizedActivity) &&
+          synchronizedActivity > lastActivityRef.current
+        ) {
+          lastActivityRef.current = synchronizedActivity;
+        }
+      }
+
+      if (event.key === SESSION_CONTINUE_STORAGE_KEY && event.newValue) {
+        const continuedAt = Number(event.newValue);
+
+        if (Number.isFinite(continuedAt)) {
+          sessionWarningActiveRef.current = false;
+          lastActivityRef.current = continuedAt;
+          activityThrottleRef.current = continuedAt;
+          setShowSessionWarning(false);
+          setSessionSecondsRemaining(Math.ceil(SESSION_WARNING_MS / 1000));
+        }
+      }
+
+      if (event.key === LOGOUT_STORAGE_KEY && event.newValue && session) {
+        try {
+          await supabase.auth.signOut({ scope: "local" });
+        } finally {
+          clearPrivateApplicationState();
+          setSession(null);
+          window.location.hash = "";
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [session]);
 
   useEffect(() => {
     const onHashChange = () => setHashRoute(window.location.hash);
@@ -760,8 +1019,14 @@ function App() {
       return;
     }
 
+    const loginTime = Date.now();
+    lastActivityRef.current = loginTime;
+    localStorage.setItem(LAST_ACTIVITY_STORAGE_KEY, String(loginTime));
+
     setLoginFailedOnce(false);
     setAuthMessage("");
+    setSessionNotice("");
+    setShowSessionWarning(false);
     setLoginForm({ email: "", password: "" });
     setActiveModal(null);
   };
@@ -820,10 +1085,20 @@ function App() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setCurrentUserProfile(null);
-    setShowHeroWelcome(false);
-    window.location.hash = "";
+    try {
+      localStorage.setItem(LOGOUT_STORAGE_KEY, String(Date.now()));
+
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+
+      if (error) {
+        console.error("Logout error:", error);
+      }
+    } finally {
+      clearPrivateApplicationState();
+      setSession(null);
+      setSessionNotice("");
+      window.location.hash = "";
+    }
   };
 
   const openBookingModal = (serviceTitle = "") => {
@@ -2576,6 +2851,12 @@ function App() {
             <p className="section-label">Customer Login</p>
             <h2>Login</h2>
 
+            {sessionNotice && (
+              <div className="form-message session-expired-message">
+                {sessionNotice}
+              </div>
+            )}
+
             {authMessage && <div className="form-message">{authMessage}</div>}
 
             <form className="auth-form" onSubmit={handleLogin}>
@@ -3006,6 +3287,62 @@ function App() {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {session && showSessionWarning && (
+        <div
+          className="session-warning-overlay"
+          role="dialog"
+          onMouseMove={(event) => event.stopPropagation()}
+          onMouseDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+          onTouchStart={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+          aria-modal="true"
+          aria-labelledby="session-warning-title"
+        >
+          <div className="session-warning-modal">
+            <div className="session-warning-icon" aria-hidden="true">
+              ⏱
+            </div>
+
+            <p className="section-label">Session Security</p>
+
+            <h2 id="session-warning-title">Are You Still There?</h2>
+
+            <p className="session-warning-description">
+              For your security, you will be logged out after inactivity.
+            </p>
+
+            <div
+              className="session-countdown"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {sessionSecondsRemaining}
+              <span>seconds remaining</span>
+            </div>
+
+            <div className="session-warning-actions">
+              <button
+                type="button"
+                className="session-stay-button"
+                onClick={handleStaySignedIn}
+                autoFocus
+              >
+                Stay Signed In
+              </button>
+
+              <button
+                type="button"
+                className="session-logout-button"
+                onClick={handleSessionWarningLogout}
+              >
+                Logout Now
+              </button>
+            </div>
           </div>
         </div>
       )}
